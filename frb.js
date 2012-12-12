@@ -1,21 +1,3 @@
-var my = {};
-
-var goingRight = true;
-var m = 0;
-
-function update() {
-    if (my.ball.y + my.ball.height > game.height) {
-        my.ball.yVelocity = 0-my.ball.yVelocity;        
-    }
-    if (my.ball.yVelocity > 20) my.ball.yVelocity = 20;
-    
-    SpriteManager.camera.x = Math.sin(m) * 100;
-    m += .05;
-}
-
-function draw() {
-}
-
 /***********************
     Framework
 ***********************/
@@ -96,10 +78,9 @@ Sprite.prototype.draw = function() {
     canvas.save();
     canvas.translate(this.x + this.width/2, this.y + this.height/2);
     canvas.rotate(this.zRotation);
-    canvas.drawImage(this.img, this.width/-2,this.height/-2);//this.x, this.y);
+    canvas.drawImage(this.img, this.width/-2,this.height/-2);
 
     canvas.restore();
-    //context.rotate(0);
 };
 Sprite.prototype.update = function() {
     this.x += this.xVelocity;
@@ -142,15 +123,4 @@ setInterval(function() {
   coreUpdate();
   coreDraw();
 }, 1000/game.fps);
-
-/****************
- Custom init
-****************/
-$(function() {
-   my.ball = SpriteManager.add("http://www.flatredball.com/frb/docs/images/9/99/Frblogo128.png"); 
-    //my.ball.y = 300;
-    my.ball.yAcceleration = .5;
-    
-    my.ball.zRotationVelocity = .05;
-});
 ​
