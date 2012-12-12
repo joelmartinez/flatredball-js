@@ -1,65 +1,66 @@
 /***********************
     Framework
 ***********************/
+var frb = {};
 
-function Camera() {
+frb.Camera = function() {
     this.x = 0;
     this.y = 0;
 }
-Camera.prototype.start = function() {
-    canvas.save();
-    canvas.translate(0-this.x, 0-this.y);
+frb.Camera.prototype.start = function () {
+    frb.context.save();
+    frb.context.translate(0 - this.x, 0 - this.y);
 };
-Camera.prototype.end = function() {
-    canvas.restore();
+frb.Camera.prototype.end = function () {
+    frb.context.restore();
 };
 
-var SpriteManager = {
-    camera: new Camera(),
-    images:{},
-    sprites:new Array(),
-    add:function(name) {
+frb.SpriteManager = {
+    camera: new frb.Camera(),
+    images: {},
+    sprites: new Array(),
+    add: function (name) {
         var path = name;
 
         // handle the case where we want a static URL
         if (name.indexOf("http") < 0)
             path = "content/" + name + ".png";
-        
+
         // now initialize the image
         var img;
         if (name in this.images) {
-            img = this.images[name];            
+            img = this.images[name];
         }
         else {
             img = new Image();
             img.src = path;
 
-            this.images[name] = img;     
+            this.images[name] = img;
         }
-        
+
         // now create the sprite
-        var sprite = new Sprite(name, img, game.width/2-img.width/2, game.height/2-img.height/2);
+        var sprite = new frb.Sprite(name, img, frb.graphics.width / 2 - img.width / 2, frb.graphics.height / 2 - img.height / 2);
         this.sprites.push(sprite);
-        
+
         return sprite;
-    }  ,
-    update:function() {
-        for(var i=0;i<this.sprites.length;i++) {
+    },
+    update: function () {
+        for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites[i];
             sprite.update();
-        }   
+        }
     },
-    draw:function() {
+    draw: function () {
         this.camera.start();
-        for(var i=0;i<this.sprites.length;i++) {
+        for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites[i];
             sprite.draw();
         }
         this.camera.end();
-    }        
+    }
 };
 
-function Sprite(name, img, x, y) {
+frb.Sprite = function(name, img, x, y) {
     this.name = name;
     this.img = img;
     this.width = img.width;
@@ -74,80 +75,81 @@ function Sprite(name, img, x, y) {
     this.zRotationAcceleration = 0;
     this.zRotationVelocity = 0;
 }
-Sprite.prototype.draw = function() {
-    canvas.save();
-    canvas.translate(this.x + this.width/2, this.y + this.height/2);
-    canvas.rotate(this.zRotation);
-    canvas.drawImage(this.img, this.width/-2,this.height/-2);
+frb.Sprite.prototype.draw = function () {
+    frb.context.save();
+    frb.context.translate(this.x + this.width / 2, this.y + this.height / 2);
+    frb.context.rotate(this.zRotation);
+    frb.context.drawImage(this.img, this.width / -2, this.height / -2);
 
-    canvas.restore();
+    frb.context.restore();
 };
-Sprite.prototype.update = function() {
+frb.Sprite.prototype.update = function () {
     this.x += this.xVelocity;
     this.y += this.yVelocity;
     this.xVelocity += this.xAcceleration;
-    this.yVelocity += this.yAcceleration;  
-    
-    this.zRotation += this.zRotationVelocity;    
+    this.yVelocity += this.yAcceleration;
+
+    this.zRotation += this.zRotationVelocity;
     this.zRotationVelocity += this.zRotationAcceleration;
 };
 
 /***********************
     Game initialization
 ***********************/
+(function () {
+    function coreUpdate() {
+        frb.SpriteManager.update();
 
-function coreUpdate() {
-    SpriteManager.update();
-
-    if (update && typeof(update) == "function")update();
-}
-
-function coreDraw() {
-    canvas.fillStyle ="#6495ED";
-    canvas.fillRect(0, 0, game.width, game.height);
-    
-    SpriteManager.draw();
-
-    if (draw && typeof(draw) == "function")draw();   
-}
-
-function r(f) {
-    if (document.addEventListener) {
-        // Use the handy event callback
-        var callback = function () {
-            document.removeEventListener("DOMContentLoaded", callback, false);
-            f();
-        };
-
-        document.addEventListener("DOMContentLoaded", callback, false);
-
+        if (update && typeof (update) == "function") update();
     }
-    else {
-        // TODO: support IE
+
+    function coreDraw() {
+        frb.context.fillStyle = "#6495ED";
+        frb.context.fillRect(0, 0, frb.graphics.width, frb.graphics.height);
+
+        frb.SpriteManager.draw();
+
+        if (draw && typeof (draw) == "function") draw();
     }
-}
 
-// initialize the canvas
-var game = {
-    width: 480,
-    height: 320,
-    fps: 30
-};
+    function r(f) {
+        if (document.addEventListener) {
+            // Use the handy event callback
+            var callback = function () {
+                document.removeEventListener("DOMContentLoaded", callback, false);
+                f();
+            };
 
-var canvasElement = $("<canvas width='" + game.width +
-                          "' height='" + game.height + "'></canvas>");
-var canvas = canvasElement.get(0).getContext("2d");
-canvasElement.appendTo('body');
+            document.addEventListener("DOMContentLoaded", callback, false);
 
-r(function () {
-    console.log("initializing frb");
+        }
+        else {
+            // TODO: support IE
+        }
+    }
 
-    // run the user's initialization code
-    if (init && typeof(init) == "function") init();
+    // initialize the canvas
+    frb.graphics = {
+        width: 480,
+        height: 320,
+        fps: 30
+    };
 
-    // set up the game loop
-    setInterval(function() {
-        coreUpdate();
-        coreDraw();
-    }, 1000/game.fps);
-});
+    var canvasElement = $("<canvas width='" + frb.graphics.width +
+                              "' height='" + frb.graphics.height + "'></canvas>");
+    frb.context = canvasElement.get(0).getContext("2d");
+    canvasElement.appendTo('body');
+
+    r(function () {
+        console.log("initializing frb");
+
+        // run the user's initialization code
+        if (init && typeof (init) == "function") init();
+
+        // set up the game loop
+        setInterval(function () {
+            coreUpdate();
+            coreDraw();
+        }, 1000 / frb.graphics.fps);
+    });
+})();
