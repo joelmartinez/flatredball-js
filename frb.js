@@ -95,20 +95,11 @@ Sprite.prototype.update = function() {
 /***********************
     Game initialization
 ***********************/
-var game = {
-    width:480,
-    height:320,
-    fps:30
-};
-
-var canvasElement = $("<canvas width='" + game.width + 
-                      "' height='" + game.height + "'></canvas>");
-var canvas = canvasElement.get(0).getContext("2d");
-canvasElement.appendTo('body');
 
 function coreUpdate() {
     SpriteManager.update();
-    update();
+
+    if (update && typeof(update) == "function")update();
 }
 
 function coreDraw() {
@@ -116,11 +107,33 @@ function coreDraw() {
     canvas.fillRect(0, 0, game.width, game.height);
     
     SpriteManager.draw();
-    draw();   
+
+    if (draw && typeof(draw) == "function")draw();   
 }
 
-setInterval(function() {
-  coreUpdate();
-  coreDraw();
-}, 1000/game.fps);
+function r(f){/in/(document.readyState)?setTimeout(r,9,f):f()}
+r(function(){
+    // initialize the canvas
+    var game = {
+        width:480,
+        height:320,
+        fps:30
+    };
+
+    var canvasElement = $("<canvas width='" + game.width + 
+                          "' height='" + game.height + "'></canvas>");
+    var canvas = canvasElement.get(0).getContext("2d");
+    canvasElement.appendTo('body');
+
+    // run the user's initialization code
+    if (init && typeof(init) == "function") init();
+
+    // set up the game loop
+    setInterval(function() {
+      coreUpdate();
+      coreDraw();
+    }, 1000/game.fps);
+});
+
+
 ​
