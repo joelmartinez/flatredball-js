@@ -111,29 +111,43 @@ function coreDraw() {
     if (draw && typeof(draw) == "function")draw();   
 }
 
-function r(f){/in/(document.readyState)?setTimeout(r,9,f):f()}
-r(function(){
-    // initialize the canvas
-    var game = {
-        width:480,
-        height:320,
-        fps:30
-    };
+function r(f) {
+    if (document.addEventListener) {
+        // Use the handy event callback
+        var callback = function () {
+            document.removeEventListener("DOMContentLoaded", callback, false);
+            f();
+        };
 
-    var canvasElement = $("<canvas width='" + game.width + 
+        document.addEventListener("DOMContentLoaded", callback, false);
+
+    }
+    else {
+        // TODO: support IE
+    }
+}
+
+// initialize the canvas
+var game = {
+    width: 480,
+    height: 320,
+    fps: 30
+};
+
+var canvasElement = $("<canvas width='" + game.width +
                           "' height='" + game.height + "'></canvas>");
-    var canvas = canvasElement.get(0).getContext("2d");
-    canvasElement.appendTo('body');
+var canvas = canvasElement.get(0).getContext("2d");
+canvasElement.appendTo('body');
+
+r(function () {
+    console.log("initializing frb");
 
     // run the user's initialization code
     if (init && typeof(init) == "function") init();
 
     // set up the game loop
     setInterval(function() {
-      coreUpdate();
-      coreDraw();
+        coreUpdate();
+        coreDraw();
     }, 1000/game.fps);
 });
-
-
-​
