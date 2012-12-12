@@ -96,11 +96,11 @@ frb.Sprite.prototype.update = function () {
 /***********************
     Game initialization
 ***********************/
-(function () {
+frb.start = function (options) {
     function coreUpdate() {
         frb.SpriteManager.update();
 
-        if (update && typeof (update) == "function") update();
+        if (options.update) options.update();
     }
 
     function coreDraw() {
@@ -109,7 +109,7 @@ frb.Sprite.prototype.update = function () {
 
         frb.SpriteManager.draw();
 
-        if (draw && typeof (draw) == "function") draw();
+        if (options.draw) options.draw();
     }
 
     function r(f) {
@@ -144,7 +144,8 @@ frb.Sprite.prototype.update = function () {
         console.log("initializing frb");
 
         // run the user's initialization code
-        if (init && typeof (init) == "function") init();
+        //if (init && typeof (init) == "function") init();
+        if (options.init) options.init();
 
         // set up the game loop
         setInterval(function () {
@@ -152,4 +153,4 @@ frb.Sprite.prototype.update = function () {
             coreDraw();
         }, 1000 / frb.graphics.fps);
     });
-})();
+};
