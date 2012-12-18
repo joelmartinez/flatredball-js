@@ -129,18 +129,36 @@ frb.start = function (options) {
     }
 
     // initialize the canvas
-    frb.graphics = {
-        width: 480,
-        height: 320,
-        fps: 30
-    };
 
-    var canvasElement = $("<canvas width='" + frb.graphics.width +
-                              "' height='" + frb.graphics.height + "'></canvas>");
-    frb.context = canvasElement.get(0).getContext("2d");
-    canvasElement.appendTo('body');
+    // create the canvas, if necessary
+    if (options.canvas) {
+        if (options.canvas instanceof jQuery) {
+            frb.context = options.canvas.get(0).getContext("2d");
+            frb.graphics = { width: options.canvas.width(), height: options.canvas.height() };
+        }
+        else {
+            frb.context = options.getContext("2d");
+            frb.graphics = { width: options.canvas.style.width, height: options.canvas.style.height };
+        }
+    }
+    else {
+        frb.graphics = {
+            width: 480,
+            height: 320
+        };
 
-    r(function () {
+        var canvasElement = document.createElement("canvas");
+        canvasElement.setAttribute("width", frb.graphics.width);
+        canvasElement.setAttribute("height", frb.graphics.height);
+        var body = document.getElementsByTagName("body").item(0);
+
+        body.appendChild(canvasElement);
+        frb.context = canvasElement.getContext("2d");
+    }
+
+    if (!frb.graphics.fps) frb.graphics.fps = 30;
+
+    (function () {
         console.log("initializing frb");
 
         // run the user's initialization code
@@ -152,5 +170,5 @@ frb.start = function (options) {
             coreUpdate();
             coreDraw();
         }, 1000 / frb.graphics.fps);
-    });
+    })();
 };
