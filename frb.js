@@ -132,14 +132,20 @@ frb.start = function (options) {
 
     // create the canvas, if necessary
     if (options.canvas) {
-        if (options.canvas instanceof jQuery) {
+        if (jQuery && options.canvas instanceof jQuery) {
             frb.context = options.canvas.get(0).getContext("2d");
             frb.graphics = { width: options.canvas.width(), height: options.canvas.height() };
         }
         else {
-            frb.context = options.getContext("2d");
-            frb.graphics = { width: options.canvas.style.width, height: options.canvas.style.height };
+            frb.context = options.canvas.getContext("2d");
+            frb.graphics = { width: options.canvas.width, height: options.canvas.height };
         }
+    }
+    else if (document.getElementsByTagName("canvas").length > 0) {
+        var canvasElement = document.getElementsByTagName("canvas").item(0);
+
+        frb.context = canvasElement.getContext("2d");
+        frb.graphics = { width: canvasElement.width, height: canvasElement.height };
     }
     else {
         frb.graphics = {
@@ -155,7 +161,7 @@ frb.start = function (options) {
         body.appendChild(canvasElement);
         frb.context = canvasElement.getContext("2d");
     }
-
+    
     if (!frb.graphics.fps) frb.graphics.fps = 30;
 
     (function () {
