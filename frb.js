@@ -15,7 +15,7 @@ frb.Camera = function() {
 }
 frb.Camera.prototype.start = function () {
     frb.context.save();
-    frb.context.translate(0 - this.x, 0 - this.y);
+    frb.context.translate((0 - this.x) + frb.graphics.width / 2, this.y + frb.graphics.height / 2);
 };
 frb.Camera.prototype.end = function () {
     frb.context.restore();
@@ -50,7 +50,7 @@ frb.SpriteManager = {
         }
 
         // now create the sprite
-        var sprite = new frb.Sprite(name, img, frb.graphics.width / 2 - img.width / 2, frb.graphics.height / 2 - img.height / 2);
+        var sprite = new frb.Sprite(name, img, 0, 0);
         this.sprites.push(sprite);
 
         return sprite;
@@ -94,9 +94,9 @@ frb.Sprite = function(name, img, x, y) {
     });
 }
 frb.Sprite.prototype.draw = function () {
-    console.log(this.height);
+    console.log(this.x);
     frb.context.save();
-    frb.context.translate(this.x + this.width / 2, this.y + this.height / 2);
+    frb.context.translate(this.xTarget, this.yTarget);
     frb.context.rotate(this.zRotation);
     frb.context.drawImage(this.img, this.width / -2, this.height / -2);
 
@@ -110,6 +110,9 @@ frb.Sprite.prototype.update = function () {
 
     this.zRotation += this.zRotationVelocity;
     this.zRotationVelocity += this.zRotationAcceleration;
+
+    this.xTarget = this.x;
+    this.yTarget = MathHelper.invert(this.y);
 };
 
 /***********************
