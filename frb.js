@@ -1,3 +1,9 @@
+MathHelper = {
+    invert: function (value) {
+        return 0 - value;
+    }
+};
+
 /***********************
     Framework
 ***********************/
@@ -34,7 +40,12 @@ frb.SpriteManager = {
         else {
             img = new Image();
             img.src = path;
-
+            img.loadEvents = new Array();
+            img.onload = function () {
+                for (var i = 0; i < img.loadEvents.length; i++) {
+                    img.loadEvents[i]();
+                }
+            };
             this.images[name] = img;
         }
 
@@ -74,8 +85,16 @@ frb.Sprite = function(name, img, x, y) {
     this.zRotation = 0;
     this.zRotationAcceleration = 0;
     this.zRotationVelocity = 0;
+
+    // now handle delayed loading
+    var sprite = this;
+    img.loadEvents.push(function () {
+        sprite.width = img.width;
+        sprite.height = img.height;
+    });
 }
 frb.Sprite.prototype.draw = function () {
+    console.log(this.height);
     frb.context.save();
     frb.context.translate(this.x + this.width / 2, this.y + this.height / 2);
     frb.context.rotate(this.zRotation);
@@ -110,22 +129,6 @@ frb.start = function (options) {
         frb.SpriteManager.draw();
 
         if (options.draw) options.draw();
-    }
-
-    function r(f) {
-        if (document.addEventListener) {
-            // Use the handy event callback
-            var callback = function () {
-                document.removeEventListener("DOMContentLoaded", callback, false);
-                f();
-            };
-
-            document.addEventListener("DOMContentLoaded", callback, false);
-
-        }
-        else {
-            // TODO: support IE
-        }
     }
 
     // initialize the canvas
