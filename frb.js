@@ -88,7 +88,10 @@ frb.InputManager = {
         x: 0,
         y: 0,
         worldX: 0,
-        worldY: 0
+        worldY: 0,
+        leftButton: false,
+        rightButton: false,
+        middleButton: false
     },
     update: function () {
         // update the mouse's world coordinates
@@ -255,6 +258,16 @@ frb.start = function (options) {
                 var relativeYPosition = e.pageY - this.offsetTop;
                 frb.InputManager.mouse.x = relativeXPosition;
                 frb.InputManager.mouse.y = relativeYPosition;
+            });
+            $(options.canvas).mousedown(function (e) {
+                if (e.which === 1) frb.InputManager.mouse.leftButton = true;
+                if (e.which === 3) frb.InputManager.mouse.rightButton = true;
+                if (e.which === 2) frb.InputManager.mouse.middleButton = true;
+            });
+            $(options.canvas).mouseup(function (e) {
+                if (e.which === 1) frb.InputManager.mouse.leftButton = false;
+                if (e.which === 3) frb.InputManager.mouse.rightButton = false;
+                if (e.which === 2) frb.InputManager.mouse.middleButton = false;
             });
         });
     }
