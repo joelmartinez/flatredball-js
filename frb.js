@@ -9,6 +9,49 @@ MathHelper = {
 ***********************/
 var frb = {};
 
+frb.PositionedObject = function () {
+    this.x = 0;
+    this.y = 0;
+    this.xVelocity = 0;
+    this.yVelocity = 0;
+    this.xAcceleration = 0;
+    this.yAcceleration = 0;
+    this.zRotation = 0;
+    this.zRotationAcceleration = 0;
+    this.zRotationVelocity = 0;
+}
+frb.PositionedObject.prototype.update = function () {
+    this.x += this.xVelocity;
+    this.y += this.yVelocity;
+    this.xVelocity += this.xAcceleration;
+    this.yVelocity += this.yAcceleration;
+
+    this.zRotation += this.zRotationVelocity;
+    this.zRotationVelocity += this.zRotationAcceleration;
+};
+frb.PositionedObject.prototype.updateControlValues = function (source) {
+    this.x = source.x;
+    this.y = source.y;
+    this.xVelocity = source.xVelocity;
+    this.yVelocity = source.yVelocity;
+    this.xAcceleration = source.xAcceleration;
+    this.yAcceleration = source.xAcceleration;
+    this.zRotation = source.zRotation;
+    this.zRotationVelocity = source.zRotationVelocity;
+    this.zRotationAcceleration = source.zRotationAcceleration;
+};
+frb.PositionedObject.prototype.updatePositionResults = function (target) {
+    target.x = this.x;
+    target.y = this.y;
+    target.xVelocity = this.xVelocity;
+    target.yVelocity = this.yVelocity;
+    target.xAcceleration = this.xAcceleration;
+    target.yAcceleration = this.yAcceleration;
+    target.zRotation = this.zRotation;
+    target.zRotationAcceleration = this.zRotationAcceleration;
+    target.zRotationVelocity = this.zRotationVelocity;
+};
+
 frb.Camera = function() {
     this.x = 0;
     this.y = 0;
@@ -76,15 +119,12 @@ frb.Sprite = function(name, img, x, y) {
     this.img = img;
     this.width = img.width;
     this.height = img.height;
+
+    this.position = new frb.PositionedObject();
+    this.position.updatePositionResults(this);
+
     this.x = x;
     this.y = y;
-    this.xVelocity = 0;
-    this.yVelocity = 0;
-    this.xAcceleration = 0;
-    this.yAcceleration = 0;
-    this.zRotation = 0;
-    this.zRotationAcceleration = 0;
-    this.zRotationVelocity = 0;
 
     // now handle delayed loading
     var sprite = this;
@@ -94,7 +134,6 @@ frb.Sprite = function(name, img, x, y) {
     });
 }
 frb.Sprite.prototype.draw = function () {
-    console.log(this.x);
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
     frb.context.rotate(this.zRotation);
@@ -103,13 +142,9 @@ frb.Sprite.prototype.draw = function () {
     frb.context.restore();
 };
 frb.Sprite.prototype.update = function () {
-    this.x += this.xVelocity;
-    this.y += this.yVelocity;
-    this.xVelocity += this.xAcceleration;
-    this.yVelocity += this.yAcceleration;
-
-    this.zRotation += this.zRotationVelocity;
-    this.zRotationVelocity += this.zRotationAcceleration;
+    this.position.updateControlValues(this);
+    this.position.update();
+    this.position.updatePositionResults(this);
 
     this.xTarget = this.x;
     this.yTarget = MathHelper.invert(this.y);
