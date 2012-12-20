@@ -93,7 +93,7 @@ frb.InputManager = {
     update: function () {
         // update the mouse's world coordinates
         var left = frb.SpriteManager.camera.x - (frb.graphics.width / 2);
-        var top = frb.SpriteManager.camera.y - (frb.graphics.height / 2);
+        var top = MathHelper.invert(frb.SpriteManager.camera.y) - (frb.graphics.height / 2);
         this.mouse.worldX = left + this.mouse.x;
         this.mouse.worldY = MathHelper.invert(top + this.mouse.y);
     }
