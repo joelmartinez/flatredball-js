@@ -9,6 +9,23 @@ MathHelper = {
 ***********************/
 var frb = {};
 
+frb.TimeManager = {
+    start: new Date(),
+    last: new Date(),
+    secondDifference: 0,
+    secondDifferenceFromStart: 0,
+    update: function () {
+        var startMilli = this.start.getTime();
+        var lastMilli = this.last.getTime();
+        this.last = new Date();
+        var nowMilli = this.last.getTime();
+        var diff = nowMilli - lastMilli;
+        var startDiff = nowMilli - startMilli;
+        this.secondDifference = diff / 1000;
+        this.secondDifferenceFromStart = startDiff / 1000;
+    }
+}
+
 frb.PositionedObject = function () {
     this.x = 0;
     this.y = 0;
@@ -21,13 +38,15 @@ frb.PositionedObject = function () {
     this.zRotationVelocity = 0;
 }
 frb.PositionedObject.prototype.update = function () {
-    this.x += this.xVelocity;
-    this.y += this.yVelocity;
-    this.xVelocity += this.xAcceleration;
-    this.yVelocity += this.yAcceleration;
+    var diff = frb.TimeManager.secondDifference;
 
-    this.zRotation += this.zRotationVelocity;
-    this.zRotationVelocity += this.zRotationAcceleration;
+    this.x += this.xVelocity * diff + this.xAcceleration * diff;
+    this.y += this.yVelocity * diff + this.yAcceleration * diff;
+    this.xVelocity += this.xAcceleration * diff;
+    this.yVelocity += this.yAcceleration * diff;
+
+    this.zRotation += this.zRotationVelocity * diff + this.zRotationAcceleration * diff;
+    this.zRotationVelocity += this.zRotationAcceleration * diff;
 };
 frb.PositionedObject.prototype.updateControlValues = function (source) {
     this.x = source.x;
@@ -155,6 +174,7 @@ frb.Sprite.prototype.update = function () {
 ***********************/
 frb.start = function (options) {
     function coreUpdate() {
+        frb.TimeManager.update();
         frb.SpriteManager.update();
 
         if (options.update) options.update();
