@@ -7,7 +7,7 @@ MathHelper = {
 /***********************
     Framework
 ***********************/
-var frb = {};
+var frb = { pause: false };
 
 frb.TimeManager = {
     start: new Date(),
@@ -81,6 +81,22 @@ frb.Camera.prototype.start = function () {
 };
 frb.Camera.prototype.end = function () {
     frb.context.restore();
+};
+
+frb.InputManager = {
+    mouse: {
+        x: 0,
+        y: 0,
+        worldX: 0,
+        worldY: 0
+    },
+    update: function () {
+        // update the mouse's world coordinates
+        var left = frb.SpriteManager.camera.x - (frb.graphics.width / 2);
+        var top = frb.SpriteManager.camera.y - (frb.graphics.height / 2);
+        this.mouse.worldX = left + this.mouse.x;
+        this.mouse.worldY = MathHelper.invert(top + this.mouse.y);
+    }
 };
 
 frb.SpriteManager = {
@@ -175,9 +191,13 @@ frb.Sprite.prototype.update = function () {
 frb.start = function (options) {
     function coreUpdate() {
         frb.TimeManager.update();
-        frb.SpriteManager.update();
+        frb.InputManager.update();
 
-        if (options.update) options.update();
+        if (!frb.pause) {
+            frb.SpriteManager.update();
+
+            if (options.update) options.update();
+        }
     }
 
     function coreDraw() {
@@ -204,7 +224,7 @@ frb.start = function (options) {
     }
     else if (document.getElementsByTagName("canvas").length > 0) {
         var canvasElement = document.getElementsByTagName("canvas").item(0);
-
+        options.canvas = canvasElement;
         frb.context = canvasElement.getContext("2d");
         frb.graphics = { width: canvasElement.width, height: canvasElement.height };
     }
@@ -220,10 +240,24 @@ frb.start = function (options) {
         var body = document.getElementsByTagName("body").item(0);
 
         body.appendChild(canvasElement);
+
+        options.canvas = canvasElement;
         frb.context = canvasElement.getContext("2d");
     }
     
     if (!frb.graphics.fps) frb.graphics.fps = 30;
+
+    // if the user is using jQuery, start tracking the mouse
+    if ($) {
+        $(function () {
+            $(options.canvas).mousemove(function (e) {
+                var relativeXPosition = e.pageX - this.offsetLeft;
+                var relativeYPosition = e.pageY - this.offsetTop;
+                frb.InputManager.mouse.x = relativeXPosition;
+                frb.InputManager.mouse.y = relativeYPosition;
+            });
+        });
+    }
 
     (function () {
         console.log("initializing frb");
