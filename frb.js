@@ -185,7 +185,19 @@ frb.Sprite.prototype.draw = function () {
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
     frb.context.rotate(this.zRotation);
-    frb.context.drawImage(this.img, this.width / -2, this.height / -2);
+
+    if (!this.textureCoordinate) {
+        frb.context.drawImage(this.img, this.width / -2, this.height / -2);
+    }
+    else {
+        // this is a sprite sheet
+        var srcX = this.width * this.textureCoordinate.left;
+        var srcY = this.height * this.textureCoordinate.top;
+        var srcW = (this.width * this.textureCoordinate.right) - srcX;
+        var srcH = (this.height * this.textureCoordinate.bottom) - srcY;
+
+        frb.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
+    }
 
     frb.context.restore();
 };
@@ -196,6 +208,9 @@ frb.Sprite.prototype.update = function () {
 
     this.xTarget = this.x;
     this.yTarget = MathHelper.invert(this.y);
+};
+frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
+    this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
 };
 
 /***********************
@@ -267,7 +282,7 @@ frb.start = function (options) {
             $(options.canvas).mousemove(function (e) {
                 var relativeXPosition = e.pageX - this.offsetLeft;
                 var relativeYPosition = e.pageY - this.offsetTop;
-                frb.InputManager.mouse.x = relativeXPosition;
+                frb.InputManager.mouse.x = relativeXPosition;http://meta.stackoverflow.com/questions/158456/stack-overflow-annual-user-survey?cb=1
                 frb.InputManager.mouse.y = relativeYPosition;
             });
             $(options.canvas).mousedown(function (e) {
