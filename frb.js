@@ -12,6 +12,49 @@ var frb = {
     keys: { "Backspace": 8, "Tab": 9, "Enter": 13, "Shift": 16, "Ctrl": 17, "Alt": 18, "PauseBreak": 19, "CapsLock": 20, "Esc": 27, "Space": 32, "PageUp": 33, "PageDown": 34, "End": 35, "Home": 36, "Left": 37, "Up": 38, "Right": 39, "Down": 40, "Insert": 45, "Delete": 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, "A": 65, "B": 66, "C": 67, "D": 68, "E": 69, "F": 70, "G": 71, "H": 72, "I": 73, "J": 74, "K": 75, "L": 76, "M": 77, "N": 78, "O": 79, "P": 80, "Q": 81, "R": 82, "S": 83, "T": 84, "U": 85, "V": 86, "W": 87, "X": 88, "Y": 89, "Z": 90, "Windows": 91, "RightClick": 93, "Num0": 96, "Num1": 97, "Num2": 98, "Num3": 99, "Num4": 100, "Num5": 101, "Num6": 102, "Num7": 103, "Num8": 104, "Num9": 105, "Num*": 106, "Num+": 107, "Num-": 109, "Num.": 110, "Num/": 111, "F1": 112, "F2": 113, "F3": 114, "F4": 115, "F5": 116, "F6": 117, "F7": 118, "F8": 119, "F9": 120, "F10": 121, "F11": 122, "F12": 123, "NumLock": 144, "ScrollLock": 145, "MyComputer": 182, "MyCalculator": 183, ";": 186, "=": 187, ",": 188, "-": 189, ".": 190, "/": 191, "`": 192, "[": 219, "\\": 220, "]": 221, "'": 222 }
 };
 
+frb.AttachableList = function() {
+    this.list = new Array();
+    this.length = 0;
+};
+
+frb.AttachableList.prototype.contains = function (value) {
+    return this.list.indexOf(value) >= 0;
+};
+
+frb.AttachableList.prototype.add = function (value) {
+    if (!this.contains(value)) {
+        this.list.push(value);
+        this.length = this.list.length;
+
+        if (!value.listsBelongingTo) value.listsBelongingTo = new Array();
+        value.listsBelongingTo.push(this);
+    }
+};
+
+frb.AttachableList.prototype.remove = function (value) {
+    var index = this.list.indexOf(value);
+
+    if (index >= 0) {
+        this.list.splice(index, 1);
+        
+        if (value.listsBelongingTo) {
+            var listIndex = value.listsBelongingTo.indexOf(this);
+            if (listIndex >= 0) {
+                value.listsBelongingTo.splice(listIndex, 1);
+            }
+        }
+    }
+};
+
+frb.AttachableList.removeFromAll = function (value) {
+    if (value.listsBelongingTo) {
+        var numLists = value.listsBelongingTo.length;
+        for (var i = 0; i < numLists; i++) {
+            value.listsBelongingTo[i].remove(value);
+        }
+    }
+};
+
 frb.TimeManager = {
     start: new Date(),
     last: new Date(),
@@ -39,6 +82,7 @@ frb.PositionedObject = function () {
     this.zRotation = 0;
     this.zRotationAcceleration = 0;
     this.zRotationVelocity = 0;
+    this.listsBelongingTo = new Array();
 }
 frb.PositionedObject.prototype.update = function () {
     var diff = frb.TimeManager.secondDifference;
@@ -50,6 +94,12 @@ frb.PositionedObject.prototype.update = function () {
 
     this.zRotation += this.zRotationVelocity * diff + this.zRotationAcceleration * diff;
     this.zRotationVelocity += this.zRotationAcceleration * diff;
+};
+frb.PositionedObject.prototype.initialize = function (target) {
+    this.updatePositionResults(target);
+    target.listsBelongingTo = this.listsBelongingTo;
+    target.removeSelfFromListsBelongingTo = this.removeSelfFromListsBelongingTo;
+    
 };
 frb.PositionedObject.prototype.updateControlValues = function (source) {
     this.x = source.x;
@@ -72,6 +122,9 @@ frb.PositionedObject.prototype.updatePositionResults = function (target) {
     target.zRotation = this.zRotation;
     target.zRotationAcceleration = this.zRotationAcceleration;
     target.zRotationVelocity = this.zRotationVelocity;
+};
+frb.PositionedObject.prototype.removeSelfFromListsBelongingTo = function () {
+    frb.AttachableList.removeFromAll(this);
 };
 
 frb.Camera = function() {
@@ -169,7 +222,7 @@ frb.Sprite = function(name, img, x, y) {
     this.height = img.height;
 
     this.position = new frb.PositionedObject();
-    this.position.updatePositionResults(this);
+    this.position.initialize(this);
 
     this.x = x;
     this.y = y;
@@ -282,7 +335,7 @@ frb.start = function (options) {
             $(options.canvas).mousemove(function (e) {
                 var relativeXPosition = e.pageX - this.offsetLeft;
                 var relativeYPosition = e.pageY - this.offsetTop;
-                frb.InputManager.mouse.x = relativeXPosition;http://meta.stackoverflow.com/questions/158456/stack-overflow-annual-user-survey?cb=1
+                frb.InputManager.mouse.x = relativeXPosition;
                 frb.InputManager.mouse.y = relativeYPosition;
             });
             $(options.canvas).mousedown(function (e) {
@@ -314,7 +367,6 @@ frb.start = function (options) {
         console.log("initializing frb");
 
         // run the user's initialization code
-        //if (init && typeof (init) == "function") init();
         if (options.init) options.init();
 
         // set up the game loop
