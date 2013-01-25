@@ -241,6 +241,8 @@ frb.Sprite.prototype.draw = function () {
     frb.context.translate(this.xTarget, this.yTarget);
     frb.context.rotate(this.zRotation);
 
+    frb.context.globalAlpha = this.alpha;
+
     if (!this.textureCoordinate) {
         frb.context.drawImage(this.img, this.width / -2, this.height / -2);
     }
@@ -251,7 +253,6 @@ frb.Sprite.prototype.draw = function () {
         var srcW = (this.width * this.textureCoordinate.right) - srcX;
         var srcH = (this.height * this.textureCoordinate.bottom) - srcY;
 
-        frb.context.globalAlpha = this.alpha;
         frb.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
     }
 
