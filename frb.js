@@ -227,6 +227,8 @@ frb.Sprite = function(name, img, x, y) {
     this.x = x;
     this.y = y;
 
+    this.alpha = 1;
+
     // now handle delayed loading
     var sprite = this;
     img.loadEvents.push(function () {
@@ -238,6 +240,8 @@ frb.Sprite.prototype.draw = function () {
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
     frb.context.rotate(this.zRotation);
+
+    frb.context.globalAlpha = this.alpha;
 
     if (!this.textureCoordinate) {
         frb.context.drawImage(this.img, this.width / -2, this.height / -2);

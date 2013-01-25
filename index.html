@@ -17,6 +17,8 @@ var game = {};
     frb.start({
         init: function() {
 		game.ball = frb.SpriteManager.add("http://www.flatredball.com/frb/docs/images/9/99/Frblogo128.png");
+		game.ball2 = frb.SpriteManager.add("http://www.flatredball.com/frb/docs/images/9/99/Frblogo128.png");
+		game.ball2.alpha = .5;
 	},
 	update: function() {
 		game.ball.x = frb.InputManager.mouse.worldX;
