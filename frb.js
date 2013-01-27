@@ -189,8 +189,11 @@ frb.SpriteManager = {
         var path = name;
 
         // handle the case where we want a static URL
-        if (name.indexOf("http") < 0)
-            path = "content/" + name + ".png";
+        if (name.indexOf("http") < 0) {
+            path = "content/" + name;
+
+            if (path.indexOf(".") < 0) path += ".png";
+        }
 
         // now initialize the image
         var img;
