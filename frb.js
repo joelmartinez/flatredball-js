@@ -39,8 +39,12 @@ frb.AttachableList.prototype.add = function (value) {
     }
 };
 
-frb.AttachableList.prototype.pop = function (value) {
-    this.remove(value);
+frb.AttachableList.prototype.pop = function () {
+    if (this.length <= 0) throw "no more items to pop";
+
+    var item = this.get(this.length-1);
+    this.remove(item);
+    return item;
 }
 
 frb.AttachableList.prototype.remove = function (value) {
