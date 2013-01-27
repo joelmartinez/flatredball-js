@@ -265,9 +265,6 @@ frb.Sprite.prototype.draw = function () {
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
 
-        console.log("sprite: "+this.xTarget + ", " + this.yTarget 
-            + " - alpha: " + this.alpha);
-
     frb.context.rotate(this.zRotation);
 
     frb.context.globalAlpha = this.alpha;
