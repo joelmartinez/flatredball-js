@@ -1,6 +1,11 @@
 MathHelper = {
     invert: function (value) {
         return 0 - value;
+    },
+    clamp: function (value, min, max) {
+        if (value < min) return min;
+        else if (value > max) return max;
+        else return value;
     }
 };
 
@@ -52,6 +57,7 @@ frb.AttachableList.prototype.remove = function (value) {
 
     if (index >= 0) {
         this.list.splice(index, 1);
+        this.length = this.list.length;
         
         if (value.listsBelongingTo) {
             var listIndex = value.listsBelongingTo.indexOf(this);
@@ -258,6 +264,10 @@ frb.Sprite = function(name, img, x, y) {
 frb.Sprite.prototype.draw = function () {
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
+
+        console.log("sprite: "+this.xTarget + ", " + this.yTarget 
+            + " - alpha: " + this.alpha);
+
     frb.context.rotate(this.zRotation);
 
     frb.context.globalAlpha = this.alpha;
@@ -284,6 +294,8 @@ frb.Sprite.prototype.update = function () {
 
     this.xTarget = this.x;
     this.yTarget = MathHelper.invert(this.y);
+
+    this.alpha = MathHelper.clamp(this.alpha, 0, 1);
 };
 frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
     this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
@@ -298,9 +310,9 @@ frb.start = function (options) {
         frb.InputManager.update();
 
         if (!frb.pause) {
+            if (options.update) options.update();
             frb.SpriteManager.update();
 
-            if (options.update) options.update();
         }
     }
 
@@ -387,8 +399,6 @@ frb.start = function (options) {
     }
 
     (function () {
-        console.log("initializing frb");
-
         // run the user's initialization code
         if (options.init) options.init();
 
