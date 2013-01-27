@@ -1,6 +1,11 @@
 MathHelper = {
     invert: function (value) {
         return 0 - value;
+    },
+    clamp: function (value, min, max) {
+        if (value < min) return min;
+        else if (value > max) return max;
+        else return value;
     }
 };
 
@@ -17,8 +22,16 @@ frb.AttachableList = function() {
     this.length = 0;
 };
 
+frb.AttachableList.prototype.get = function(index) {
+    return this.list[index];
+};
+
 frb.AttachableList.prototype.contains = function (value) {
     return this.list.indexOf(value) >= 0;
+};
+
+frb.AttachableList.prototype.push = function (value) {
+    this.add(value);
 };
 
 frb.AttachableList.prototype.add = function (value) {
@@ -31,11 +44,20 @@ frb.AttachableList.prototype.add = function (value) {
     }
 };
 
+frb.AttachableList.prototype.pop = function () {
+    if (this.length <= 0) throw "no more items to pop";
+
+    var item = this.get(this.length-1);
+    this.remove(item);
+    return item;
+}
+
 frb.AttachableList.prototype.remove = function (value) {
     var index = this.list.indexOf(value);
 
     if (index >= 0) {
         this.list.splice(index, 1);
+        this.length = this.list.length;
         
         if (value.listsBelongingTo) {
             var listIndex = value.listsBelongingTo.indexOf(this);
@@ -107,7 +129,7 @@ frb.PositionedObject.prototype.updateControlValues = function (source) {
     this.xVelocity = source.xVelocity;
     this.yVelocity = source.yVelocity;
     this.xAcceleration = source.xAcceleration;
-    this.yAcceleration = source.xAcceleration;
+    this.yAcceleration = source.yAcceleration;
     this.zRotation = source.zRotation;
     this.zRotationVelocity = source.zRotationVelocity;
     this.zRotationAcceleration = source.zRotationAcceleration;
@@ -173,8 +195,11 @@ frb.SpriteManager = {
         var path = name;
 
         // handle the case where we want a static URL
-        if (name.indexOf("http") < 0)
-            path = "content/" + name + ".png";
+        if (name.indexOf("http") < 0) {
+            path = "content/" + name;
+
+            if (path.indexOf(".") < 0) path += ".png";
+        }
 
         // now initialize the image
         var img;
@@ -239,6 +264,10 @@ frb.Sprite = function(name, img, x, y) {
 frb.Sprite.prototype.draw = function () {
     frb.context.save();
     frb.context.translate(this.xTarget, this.yTarget);
+
+        console.log("sprite: "+this.xTarget + ", " + this.yTarget 
+            + " - alpha: " + this.alpha);
+
     frb.context.rotate(this.zRotation);
 
     frb.context.globalAlpha = this.alpha;
@@ -265,6 +294,8 @@ frb.Sprite.prototype.update = function () {
 
     this.xTarget = this.x;
     this.yTarget = MathHelper.invert(this.y);
+
+    this.alpha = MathHelper.clamp(this.alpha, 0, 1);
 };
 frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
     this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
@@ -279,9 +310,9 @@ frb.start = function (options) {
         frb.InputManager.update();
 
         if (!frb.pause) {
+            if (options.update) options.update();
             frb.SpriteManager.update();
 
-            if (options.update) options.update();
         }
     }
 
@@ -368,8 +399,6 @@ frb.start = function (options) {
     }
 
     (function () {
-        console.log("initializing frb");
-
         // run the user's initialization code
         if (options.init) options.init();
 
