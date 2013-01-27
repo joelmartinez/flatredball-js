@@ -17,8 +17,16 @@ frb.AttachableList = function() {
     this.length = 0;
 };
 
+frb.AttachableList.prototype.get = function(index) {
+    return this.list[index];
+};
+
 frb.AttachableList.prototype.contains = function (value) {
     return this.list.indexOf(value) >= 0;
+};
+
+frb.AttachableList.prototype.push = function (value) {
+    this.add(value);
 };
 
 frb.AttachableList.prototype.add = function (value) {
@@ -30,6 +38,10 @@ frb.AttachableList.prototype.add = function (value) {
         value.listsBelongingTo.push(this);
     }
 };
+
+frb.AttachableList.prototype.pop = function (value) {
+    this.remove(value);
+}
 
 frb.AttachableList.prototype.remove = function (value) {
     var index = this.list.indexOf(value);
