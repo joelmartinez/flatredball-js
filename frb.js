@@ -93,6 +93,33 @@ frb.AttachableList.removeFromAll = function (value) {
     }
 };
 
+frb.ResourcePool = function() {
+    this.active = new frb.AttachableList();
+    this.available = new frb.AttachableList();
+};
+frb.ResourcePool.prototype.add = function(factory) {
+    var newItem = null;
+
+    // now check and see if we can use a recycled item
+    if (this.available.length > 0) {
+        newItem = this.available.pop();
+    }
+
+
+    if (newItem === null) {
+        // no recycled item available, make a new one
+        newItem = factory();
+    }
+
+    this.active.add(newItem);
+
+    return newItem;
+};
+frb.ResourcePool.prototype.return = function(item) {
+    this.active.remove(item);
+    this.available.add(item);
+};
+
 frb.TimeManager = {
     start: new Date(),
     last: new Date(),
