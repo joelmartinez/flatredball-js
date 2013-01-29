@@ -14,26 +14,19 @@
 <script src="frb.js"></script>
 
 <script>
+
+
 var emitter = {
-	list: new frb.AttachableList(),
-	recycled: new frb.AttachableList(),
+    pool: new frb.ResourcePool(),
     position: {x:0, y:0},
+    items: function() {
+        return this.pool.active;
+    },
     emit: function() {
-        var newParticle = null;
-
-        // now check and see if we can use a recycled particle
-        if (this.recycled.length > 0) {
-            newParticle = this.recycled.pop();
-        }
-
-
-        if (newParticle === null) {
-            // no recycled particle available, make a new one
-            newParticle = frb.SpriteManager.add(this.texture);
-        }
-
-
-        this.list.add(newParticle);
+        var self = this;
+        var newParticle = this.pool.add(function() {
+            return frb.SpriteManager.add(self.texture)
+        });
 
         newParticle.alpha = 1;
         newParticle.x = this.position.x;
@@ -54,11 +47,11 @@ frb.start({
         
 
         // recycle particles if necessary
-        for (var i = 0; i < emitter.list.length; i++) {
-        	var particle = emitter.list.get(i);
+        var list = emitter.items();
+        for (var i = 0; i < list.length; i++) {
+        	var particle = list.get(i);
         	if (particle.alpha <= 0) { 
-        		emitter.list.remove(particle);
-        		emitter.recycled.add(particle);
+        		emitter.pool.return(particle);
         		continue;
         	}
 
