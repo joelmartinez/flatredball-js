@@ -14,67 +14,61 @@
 <script src="frb.js"></script>
 
 <script>
-var game = {
+var emitter = {
 	list: new frb.AttachableList(),
-	recycled: new frb.AttachableList()
+	recycled: new frb.AttachableList(),
+    position: {x:0, y:0},
+    emit: function() {
+        var newParticle = null;
+
+        // now check and see if we can use a recycled particle
+        if (this.recycled.length > 0) {
+            newParticle = this.recycled.pop();
+        }
+
+
+        if (newParticle === null) {
+            // no recycled particle available, make a new one
+            newParticle = frb.SpriteManager.add(this.texture);
+        }
+
+
+        this.list.add(newParticle);
+
+        newParticle.alpha = 1;
+        newParticle.x = this.position.x;
+        newParticle.y = this.position.y;
+
+        return newParticle;
+    }
 };
 
 frb.start({
     init: function() {
-		/*game.ball = frb.SpriteManager.add("Frblogo128");
-		game.ball2 = frb.SpriteManager.add("Frblogo128.png");
-		game.ball2.alpha = .5;
-		game.ball2.zRotationVelocity = 1;
-
-		game.ball.yVelocity = 400.5;
-		game.ball.yAcceleration = -150.5;*/
-		
-	},
+        emitter.texture = "Frblogo128";
+    },
 	update: function() {
-		//game.ball.x = frb.InputManager.mouse.worldX;
-		//game.ball.y = frb.InputManager.mouse.worldY; 
 
-
-		var newParticlePosition = {
-			x: frb.InputManager.mouse.worldX,
-			y: frb.InputManager.mouse.worldY
-		};
+        emitter.position.x = frb.InputManager.mouse.worldX;
+        emitter.position.y = frb.InputManager.mouse.worldY;
         
 
         // recycle particles if necessary
-        for (var i = 0; i < game.list.length; i++) {
-        	var particle = game.list.get(i);
+        for (var i = 0; i < emitter.list.length; i++) {
+        	var particle = emitter.list.get(i);
         	if (particle.alpha <= 0) { 
-        		game.list.remove(particle);
-        		game.recycled.add(particle);
+        		emitter.list.remove(particle);
+        		emitter.recycled.add(particle);
         		continue;
         	}
 
         	particle.alpha -= 0.05;
         };
 
-        var newParticle = null;
-
-        // now check and see if we can use a recycled particle
-        if (game.recycled.length > 0) {
-        	newParticle = game.recycled.pop();
-        }
-
-
-        if (newParticle === null) {
-        	// no recycled particle available, make a new one
-        	newParticle = frb.SpriteManager.add("Frblogo128");
-        }
-
-
-        game.list.add(newParticle);
+        var newParticle = emitter.emit();
 
 
         // initialize particle
-        newParticle.alpha = 1;
-        newParticle.x = newParticlePosition.x;
-        newParticle.y = newParticlePosition.y;
-
 
         var xRange = 100;
         var gravity = -150.5;
