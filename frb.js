@@ -401,7 +401,7 @@ frb.start = function (options) {
         frb.context = canvasElement.getContext("2d");
     }
     
-    if (!frb.graphics.fps) frb.graphics.fps = 30;
+    if (!frb.graphics.fps) frb.graphics.fps = 60;
 
     // if the user is using jQuery, start tracking input
     if ($) {
@@ -443,9 +443,26 @@ frb.start = function (options) {
         if (options.init) options.init();
 
         // set up the game loop
-        setInterval(function () {
-            coreUpdate();
-            coreDraw();
-        }, 1000 / frb.graphics.fps);
+        if (Worker) {
+            // we have workers, let the worker drive the loop
+            var worker = new Worker('frb-thread.js');
+
+            worker.addEventListener('message', function(e) {
+                coreUpdate();
+                coreDraw();
+            }, false);
+
+            worker.postMessage(frb.graphics);
+        }
+        else {
+            // no workers
+            //alert ('cry');
+            
+            setInterval(function () {
+                coreUpdate();
+                coreDraw();
+            }, 1000 / frb.graphics.fps);
+
+        }
     })();
 };
