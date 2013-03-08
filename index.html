@@ -39,6 +39,9 @@ var emitter = {
 frb.start({
     init: function() {
         emitter.texture = "Frblogo128";
+
+        var circle = frb.SpriteManager.addCircle(10);
+        circle.xVelocity = 100;
     },
 	update: function() {
 

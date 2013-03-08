@@ -267,6 +267,12 @@ frb.SpriteManager = {
 
         return sprite;
     },
+    addCircle: function(radius) {
+        var circle = new frb.Circle(0, 0, radius);
+        this.sprites.push(circle);
+
+        return circle;
+    },
     update: function () {
         for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites[i];
@@ -281,6 +287,56 @@ frb.SpriteManager = {
         }
         this.camera.end();
     }
+};
+
+frb.Circle = function(x, y, radius) {
+    this.radius = radius;
+
+    this.width = radius * 2;
+    this.height = this.width;
+
+    this.position = new frb.PositionedObject();
+    this.position.initialize(this);
+
+    this.x = x;
+    this.y = y;
+
+    this.alpha = 1;
+
+    this.color = "yellow";
+    this.borderColor = "red";
+    this.borderWidth = 1;
+};
+frb.Circle.prototype.draw = function () {
+    frb.context.save();
+    frb.context.translate(this.xTarget, this.yTarget);
+
+    frb.context.rotate(this.zRotation);
+
+    frb.context.globalAlpha = this.alpha;
+
+    frb.context.beginPath();
+    frb.context.arc(this.x, this.y, this.radius, 0 , MathHelper.twoPi, false);
+    
+    frb.context.fillStyle = this.color;
+    frb.context.fill();
+    frb.context.lineWidth = this.borderWidth;
+    frb.context.strokeStyle = this.borderColor;
+    frb.context.stroke();
+
+
+    frb.context.restore();
+};
+
+frb.Circle.prototype.update = function () {
+    this.position.updateControlValues(this);
+    this.position.update();
+    this.position.updatePositionResults(this);
+
+    this.xTarget = this.x;
+    this.yTarget = MathHelper.invert(this.y);
+
+    this.alpha = MathHelper.clamp(this.alpha, 0, 1);
 };
 
 frb.Sprite = function(name, img, x, y) {
@@ -401,7 +457,7 @@ frb.start = function (options) {
         frb.context = canvasElement.getContext("2d");
     }
     
-    if (!frb.graphics.fps) frb.graphics.fps = 30;
+    if (!frb.graphics.fps) frb.graphics.fps = 60;
 
     // if the user is using jQuery, start tracking input
     if ($) {
@@ -443,9 +499,26 @@ frb.start = function (options) {
         if (options.init) options.init();
 
         // set up the game loop
-        setInterval(function () {
-            coreUpdate();
-            coreDraw();
-        }, 1000 / frb.graphics.fps);
+        if (Worker) {
+            // we have workers, let the worker drive the loop
+            var worker = new Worker('frb-thread.js');
+
+            worker.addEventListener('message', function(e) {
+                coreUpdate();
+                coreDraw();
+            }, false);
+
+            worker.postMessage(frb.graphics);
+        }
+        else {
+            // no workers
+            //alert ('cry');
+            
+            setInterval(function () {
+                coreUpdate();
+                coreDraw();
+            }, 1000 / frb.graphics.fps);
+
+        }
     })();
 };
