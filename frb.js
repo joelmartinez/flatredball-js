@@ -212,7 +212,8 @@ frb.InputManager = {
         worldY: 0,
         leftButton: false,
         rightButton: false,
-        middleButton: false
+        middleButton: false,
+        onCanvas: false
     },
     keyboard: {
         pressed: {},
@@ -463,6 +464,12 @@ frb.start = function (options) {
     if ($) {
         $(function () {
             // mouse events
+            $(options.canvas).mouseenter(function() {
+                frb.InputManager.onCanvas = true;
+            });
+            $(options.canvas).mouseleave(function() {
+                frb.InputManager.onCanvas = false;
+            });
             $(options.canvas).mousemove(function (e) {
                 var relativeXPosition = e.pageX - this.offsetLeft;
                 var relativeYPosition = e.pageY - this.offsetTop;
