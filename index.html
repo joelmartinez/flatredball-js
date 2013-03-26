@@ -1,21 +1,27 @@
 <!doctype html>
 <html>
 <head>
-
+    <title>frb.js</title>
+<style type="text/css" media="screen">
+    #editor { 
+        float:right;
+        width:600px;
+        height:600px;
+    }
+    #canvas {
+        float:left;
+        margin-left: 600px;
+    }
+</style>
 </head>
 
 <body>
 <h1>FRB.js</h1>
-<div style="text-align:center">
-<canvas width="800" height="600"></canvas>
-</div>
-<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js" type="text/javascript"></script>-->
-<script src="jquery-1.7.1.min.js" type="text/javascript"></script>
-<script src="frb.js"></script>
 
-<script>
+<canvas id="canvas" width="800" height="600"></canvas>
 
 
+<div id="editor">
 var emitter = {
     pool: new frb.ResourcePool(),
     position: {x:0, y:0},
@@ -43,7 +49,7 @@ frb.start({
         var circle = frb.SpriteManager.addCircle(10);
         circle.xVelocity = 100;
     },
-	update: function() {
+    update: function() {
 
         emitter.position.x = frb.InputManager.mouse.worldX;
         emitter.position.y = frb.InputManager.mouse.worldY;
@@ -52,13 +58,13 @@ frb.start({
         // recycle particles if necessary
         var list = emitter.items();
         for (var i = 0; i < list.length; i++) {
-        	var particle = list.get(i);
-        	if (particle.alpha <= 0) { 
-        		emitter.pool.return(particle);
-        		continue;
-        	}
+            var particle = list.get(i);
+            if (particle.alpha <= 0) { 
+                emitter.pool.return(particle);
+                continue;
+            }
 
-        	particle.alpha -= 0.05;
+            particle.alpha -= 0.05;
         };
 
         var newParticle = emitter.emit();
@@ -76,6 +82,38 @@ frb.start({
 
         
     }
+});
+</div>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js" type="text/javascript"></script>-->
+<script src="jquery-1.7.1.min.js" type="text/javascript"></script>
+<script src="frb.js"></script>
+
+<script>
+
+
+</script>
+<script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/javascript");
+
+    $(function() {
+        var script  = editor.getValue();
+
+        eval(script);
+    });
+
+    editor.commands.addCommand({
+    name: 'myCommand',
+    bindKey: {win: 'Ctrl-B',  mac: 'Command-B'},
+    exec: function(editor) {
+        
+        var script  = editor.getValue();
+
+        eval(script);
+    },
+    readOnly: true // false if this command should not apply in readOnly mode
 });
 </script>
 
