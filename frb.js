@@ -397,6 +397,35 @@ frb.Sprite.prototype.update = function () {
 frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
     this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
 };
+frb.Emitter = function (){
+    this.pool = new frb.ResourcePool();
+    this.position = {x:0, y:0};
+
+
+};
+frb.Emitter.prototype.items = function() {
+    return this.pool.active;
+};
+frb.Emitter.prototype.emit = function(addFunc) {
+    var self = this;
+    var newParticle = this.pool.add(addFunc);
+
+    newParticle.alpha = 1;
+    newParticle.x = this.position.x;
+    newParticle.y = this.position.y;
+
+    return newParticle;
+};
+frb.Emitter.prototype.emitSprite = function(texture) {
+    return this.emit(function() {
+        return frb.SpriteManager.add(texture)
+    });
+};
+frb.Emitter.prototype.emitCircle = function(r) {
+    return this.emit(function() {
+        return frb.SpriteManager.addCircle(r);
+    });
+};
 
 /***********************
     Game initialization

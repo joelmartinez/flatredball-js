@@ -22,33 +22,14 @@
 
 
 <div id="editor">
-var emitter = {
-    pool: new frb.ResourcePool(),
-    position: {x:0, y:0},
-    items: function() {
-        return this.pool.active;
-    },
-    emit: function() {
-        var self = this;
-        var newParticle = this.pool.add(function() {
-            return frb.SpriteManager.add(self.texture)
-        });
 
-        newParticle.alpha = 1;
-        newParticle.x = this.position.x;
-        newParticle.y = this.position.y;
-
-        return newParticle;
-    }
-};
-window.emitter = emitter;
+window.emitter = new frb.Emitter();
 
 frb.start({
     init: function() {
-        emitter.texture = "Frblogo128";
 
-        var circle = frb.SpriteManager.addCircle(10);
-        circle.xVelocity = 100;
+        //var circle = frb.SpriteManager.addCircle(10);
+        //circle.xVelocity = 100;
     },
     update: function() {
 
@@ -68,7 +49,7 @@ frb.start({
             particle.alpha -= 0.05;
         };
 
-        var newParticle = emitter.emit();
+        var newParticle = emitter.emitCircle(10);//emitSprite("Frblogo128");
 
 
         // initialize particle
@@ -76,6 +57,7 @@ frb.start({
         var xRange = 100;
         var gravity = -150.5;
         var direction = {x: (Math.random() * xRange) - (xRange/2), y: Math.random() * 400};
+
         newParticle.xVelocity = direction.x;
         newParticle.yVelocity = direction.y;
 
