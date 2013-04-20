@@ -317,7 +317,7 @@ frb.Circle.prototype.draw = function () {
     frb.context.globalAlpha = this.alpha;
 
     frb.context.beginPath();
-    frb.context.arc(this.x, this.y, this.radius, 0 , MathHelper.twoPi, false);
+    frb.context.arc(0, 0, this.radius, 0 , MathHelper.twoPi, false);
     
     frb.context.fillStyle = this.color;
     frb.context.fill();
