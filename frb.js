@@ -402,12 +402,14 @@ frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
     Game initialization
 ***********************/
 frb.start = function (options) {
+    frb.updateFunction = options.update;
+
     function coreUpdate() {
         frb.TimeManager.update();
         frb.InputManager.update();
 
         if (!frb.pause) {
-            if (options.update) options.update();
+            if (frb.updateFunction) frb.updateFunction();
             frb.SpriteManager.update();
 
         }
