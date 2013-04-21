@@ -73,6 +73,7 @@ frb.start({
 <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="esprima.js" type="text/javascript" charset="utf-8"></script>
 <script src="escodegen.browser.js" type="text/javascript" charset="utf-8"></script>
+<script src="foresta.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
@@ -94,7 +95,9 @@ frb.start({
         var syntax = esprima.parse(script);
 
         // voodoo magic for now, will be improved
-        var updateExpression = syntax.body[2].expression.arguments[0].properties[1].value;
+        var query = new foresta("ObjectExpression Property #update:parent:value");
+        query.visit(syntax);
+        var updateExpression = query.results[0];
 
         var updatedUpdateFunction = escodegen.generate(updateExpression);
         
