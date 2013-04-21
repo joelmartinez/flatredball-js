@@ -91,6 +91,13 @@ frb.start({
         eval(script);
     });
 
+    editor.getSession().on('change', function() {
+
+        var script  = editor.getValue();
+
+        compileWorker.postMessage(script);
+    });
+
     editor.commands.addCommand({
     name: 'myCommand',
     bindKey: {win: 'Ctrl-B',  mac: 'Command-B'},
