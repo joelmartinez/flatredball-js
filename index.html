@@ -73,10 +73,29 @@ frb.start({
     // set up the compilation thread:
     var compileWorker = new Worker('compile-thread.js');
 
+    var failedEvent = function(err) {
+        console.log(err);
+    };
+
     compileWorker.addEventListener('message', function(e) {
         // Compilation finished ... now update the UI
+        var result = e.data;
 
-        frb.updateFunction = eval("(" + e.data + ")");
+        if (result.failed) {
+            failedEvent(result.message);
+            return;
+        }
+
+        try {
+            if (result.shouldReset) {
+                frb.SpriteManager.reset();
+                eval("(" + result.initFunction + ")")();
+            }
+            frb.updateFunction = eval("(" + result.updateFunction + ")");
+        }
+        catch (err) {
+            failedEvent(err.message);
+        }
     }, false);
 
     $(function() {

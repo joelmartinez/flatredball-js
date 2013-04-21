@@ -46,6 +46,13 @@ frb.AttachableList.prototype.contains = function (value) {
     return this.list.indexOf(value) >= 0;
 };
 
+frb.AttachableList.prototype.removeAll = function() {
+    var items = this.list.slice(0);
+    for(var i=0;i<items.length;i++) {
+        frb.AttachableList.removeFromAll(items[i]);
+    }
+};
+
 frb.AttachableList.prototype.push = function (value) {
     this.add(value);
 };
@@ -63,7 +70,8 @@ frb.AttachableList.prototype.add = function (value) {
 frb.AttachableList.prototype.pop = function () {
     if (this.length <= 0) throw "no more items to pop";
 
-    var item = this.get(this.length-1);
+    var item = this.get(this.length-1);    
+
     this.remove(item);
     return item;
 }
@@ -88,6 +96,7 @@ frb.AttachableList.removeFromAll = function (value) {
     if (value.listsBelongingTo) {
         var numLists = value.listsBelongingTo.length;
         for (var i = 0; i < numLists; i++) {
+            if (value.listsBelongingTo[i] === undefined) continue;
             value.listsBelongingTo[i].remove(value);
         }
     }
@@ -234,7 +243,7 @@ frb.InputManager = {
 frb.SpriteManager = {
     camera: new frb.Camera(),
     images: {},
-    sprites: new Array(),
+    sprites: new frb.AttachableList(),
     add: function (name) {
         var path = name;
 
@@ -276,17 +285,20 @@ frb.SpriteManager = {
     },
     update: function () {
         for (var i = 0; i < this.sprites.length; i++) {
-            var sprite = this.sprites[i];
+            var sprite = this.sprites.get(i);
             sprite.update();
         }
     },
     draw: function () {
         this.camera.start();
         for (var i = 0; i < this.sprites.length; i++) {
-            var sprite = this.sprites[i];
+            var sprite = this.sprites.get(i);
             sprite.draw();
         }
         this.camera.end();
+    },
+    reset: function() {
+        this.sprites.removeAll();
     }
 };
 
