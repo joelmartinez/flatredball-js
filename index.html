@@ -71,13 +71,19 @@ frb.start({
 <script src="jquery-1.7.1.min.js" type="text/javascript"></script>
 <script src="frb.js"></script>
 <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script src="esprima.js" type="text/javascript" charset="utf-8"></script>
-<script src="escodegen.browser.js" type="text/javascript" charset="utf-8"></script>
-<script src="foresta.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/javascript");
+
+    // set up the compilation thread:
+    var compileWorker = new Worker('compile-thread.js');
+
+    compileWorker.addEventListener('message', function(e) {
+        // Compilation finished ... now update the UI
+
+        frb.updateFunction = eval("(" + e.data + ")");
+    }, false);
 
     $(function() {
         var script  = editor.getValue();
@@ -92,16 +98,9 @@ frb.start({
         
         var script  = editor.getValue();
 
-        var syntax = esprima.parse(script);
+        compileWorker.postMessage(script);
 
-        // voodoo magic for now, will be improved
-        var query = new foresta("ObjectExpression Property #update:parent:value");
-        query.visit(syntax);
-        var updateExpression = query.results[0];
-
-        var updatedUpdateFunction = escodegen.generate(updateExpression);
         
-        frb.updateFunction = eval("(" + updatedUpdateFunction + ")");
     },
     readOnly: true // false if this command should not apply in readOnly mode
 });
