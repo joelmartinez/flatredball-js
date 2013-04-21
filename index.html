@@ -17,19 +17,13 @@
 
 <body>
 <h1>FRB.js</h1>
-<p>Update the 'update:' function, and press cmd+b (or ctrl+b if on windows).</p>
 <canvas id="canvas" width="800" height="600"></canvas>
 
 
 <div id="editor">
-
-window.emitter = new frb.Emitter();
-
 frb.start({
     init: function() {
-
-        //var circle = frb.SpriteManager.addCircle(10);
-        //circle.xVelocity = 100;
+        window.emitter = new frb.Emitter();
     },
     update: function() {
 
@@ -97,20 +91,6 @@ frb.start({
 
         compileWorker.postMessage(script);
     });
-
-    editor.commands.addCommand({
-    name: 'myCommand',
-    bindKey: {win: 'Ctrl-B',  mac: 'Command-B'},
-    exec: function(editor) {
-        
-        var script  = editor.getValue();
-
-        compileWorker.postMessage(script);
-
-        
-    },
-    readOnly: true // false if this command should not apply in readOnly mode
-});
 </script>
 
 </body>
