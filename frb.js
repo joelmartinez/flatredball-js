@@ -412,8 +412,6 @@ frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
 frb.Emitter = function (){
     this.pool = new frb.ResourcePool();
     this.position = {x:0, y:0};
-
-
 };
 frb.Emitter.prototype.items = function() {
     return this.pool.active;
@@ -434,9 +432,11 @@ frb.Emitter.prototype.emitSprite = function(texture) {
     });
 };
 frb.Emitter.prototype.emitCircle = function(r) {
-    return this.emit(function() {
+    var circle = this.emit(function() {
         return frb.SpriteManager.addCircle(r);
     });
+    circle.radius = r;
+    return circle;
 };
 
 /***********************
