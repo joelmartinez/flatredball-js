@@ -273,6 +273,12 @@ frb.SpriteManager = {
 
         return circle;
     },
+    addLine: function(startx, starty, endx, endy) {
+        var line = new frb.Line(startx, starty, endx, endy);
+        this.sprites.push(line);
+
+        return line;
+    },
     update: function () {
         for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites.get(i);
