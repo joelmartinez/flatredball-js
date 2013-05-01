@@ -35,6 +35,10 @@ function Class(){if(!initializing&&this.init)
 this.init.apply(this,arguments);}
 Class.prototype=prototype;Class.prototype.constructor=Class;Class.extend=arguments.callee;return Class;};})();
 
+Class.prototype.toJson = function() {
+    return JSON.stringify(this, null, 0);
+}
+
 var frb = {
     pause: false,
     keys: { "Backspace": 8, "Tab": 9, "Enter": 13, "Shift": 16, "Ctrl": 17, "Alt": 18, "PauseBreak": 19, "CapsLock": 20, "Esc": 27, "Space": 32, "PageUp": 33, "PageDown": 34, "End": 35, "Home": 36, "Left": 37, "Up": 38, "Right": 39, "Down": 40, "Insert": 45, "Delete": 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, "A": 65, "B": 66, "C": 67, "D": 68, "E": 69, "F": 70, "G": 71, "H": 72, "I": 73, "J": 74, "K": 75, "L": 76, "M": 77, "N": 78, "O": 79, "P": 80, "Q": 81, "R": 82, "S": 83, "T": 84, "U": 85, "V": 86, "W": 87, "X": 88, "Y": 89, "Z": 90, "Windows": 91, "RightClick": 93, "Num0": 96, "Num1": 97, "Num2": 98, "Num3": 99, "Num4": 100, "Num5": 101, "Num6": 102, "Num7": 103, "Num8": 104, "Num9": 105, "Num*": 106, "Num+": 107, "Num-": 109, "Num.": 110, "Num/": 111, "F1": 112, "F2": 113, "F3": 114, "F4": 115, "F5": 116, "F6": 117, "F7": 118, "F8": 119, "F9": 120, "F10": 121, "F11": 122, "F12": 123, "NumLock": 144, "ScrollLock": 145, "MyComputer": 182, "MyCalculator": 183, ";": 186, "=": 187, ",": 188, "-": 189, ".": 190, "/": 191, "`": 192, "[": 219, "\\": 220, "]": 221, "'": 222 }
@@ -269,6 +273,12 @@ frb.SpriteManager = {
 
         return circle;
     },
+    addLine: function(startx, starty, endx, endy) {
+        var line = new frb.Line(startx, starty, endx, endy);
+        this.sprites.push(line);
+
+        return line;
+    },
     update: function () {
         for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites.get(i);
@@ -287,6 +297,43 @@ frb.SpriteManager = {
         this.sprites.removeAll();
     }
 };
+
+frb.Line = frb.PositionedObject.extend({
+    init: function(startx, starty, endx, endy) {
+        this.start = new frb.PositionedObject();
+        this.start.x = startx;
+        this.start.y = starty;
+
+        this.end = new frb.PositionedObject();
+        this.end.x = endx;
+        this.end.y = endy;
+
+        this.lineWidth = 2;
+        this.lineColor = "black";
+    },
+    update: function() {
+        this.start.update();
+        this.end.update();
+    },
+    draw: function() {
+        frb.context.save();
+
+        frb.context.globalAlpha = this.alpha;
+
+        frb.context.beginPath();
+        
+        console.log(this.end.toJson());
+        frb.context.moveTo(this.start.xTarget, this.start.yTarget);
+        frb.context.lineTo(this.end.xTarget, this.end.yTarget);
+
+        frb.context.lineWidth = this.lineWidth;
+        frb.context.strokeStyle = this.lineColor;
+
+        frb.context.stroke();
+
+        frb.context.restore();
+    }
+});
 
 frb.Circle = frb.PositionedObject.extend({
     init: function(x, y, radius) {
