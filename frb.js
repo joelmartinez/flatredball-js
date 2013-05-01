@@ -182,34 +182,6 @@ frb.PositionedObject = Class.extend({
 
         this.alpha = MathHelper.clamp(this.alpha, 0, 1);
     },
-    // TODO: remove these
-    initialize: function (target) {
-        this.updatePositionResults(target);
-        target.listsBelongingTo = this.listsBelongingTo;
-        target.removeSelfFromListsBelongingTo = this.removeSelfFromListsBelongingTo;
-    },
-    updateControlValues: function (source) {
-        this.x = source.x;
-        this.y = source.y;
-        this.xVelocity = source.xVelocity;
-        this.yVelocity = source.yVelocity;
-        this.xAcceleration = source.xAcceleration;
-        this.yAcceleration = source.yAcceleration;
-        this.zRotation = source.zRotation;
-        this.zRotationVelocity = source.zRotationVelocity;
-        this.zRotationAcceleration = source.zRotationAcceleration;
-    },
-    updatePositionResults: function (target) {
-        target.x = this.x;
-        target.y = this.y;
-        target.xVelocity = this.xVelocity;
-        target.yVelocity = this.yVelocity;
-        target.xAcceleration = this.xAcceleration;
-        target.yAcceleration = this.yAcceleration;
-        target.zRotation = this.zRotation;
-        target.zRotationAcceleration = this.zRotationAcceleration;
-        target.zRotationVelocity = this.zRotationVelocity;
-    },
     removeSelfFromListsBelongingTo: function () {
         frb.AttachableList.removeFromAll(this);
     }
@@ -353,78 +325,57 @@ frb.Circle = frb.PositionedObject.extend({
 
 
         frb.context.restore();
-    },
-
-    update: function () {
-        this._super();
-    //this.position.updateControlValues(this);
-    //this.position.update();
-    //this.position.updatePositionResults(this);
-
-    //this.xTarget = this.x;
-    //this.yTarget = MathHelper.invert(this.y);
-
-    //this.alpha = MathHelper.clamp(this.alpha, 0, 1);
-}
+    }
 });
 
-frb.Sprite = function(name, img, x, y) {
-    this.name = name;
-    this.img = img;
-    this.width = img.width;
-    this.height = img.height;
+frb.Sprite = frb.PositionedObject.extend({
+    init: function(name, img, x, y) {
+        this.name = name;
+        this.img = img;
+        this.width = img.width;
+        this.height = img.height;
 
-    this.position = new frb.PositionedObject();
-    this.position.initialize(this);
+        this._super();
 
-    this.x = x;
-    this.y = y;
+        this.x = x;
+        this.y = y;
 
-    this.alpha = 1;
+        this.alpha = 1;
 
-    // now handle delayed loading
-    var sprite = this;
-    img.loadEvents.push(function () {
-        sprite.width = img.width;
-        sprite.height = img.height;
-    });
-}
-frb.Sprite.prototype.draw = function () {
-    frb.context.save();
-    frb.context.translate(this.xTarget, this.yTarget);
+        // now handle delayed loading
+        var sprite = this;
+        img.loadEvents.push(function () {
+            sprite.width = img.width;
+            sprite.height = img.height;
+        });
+    },
+    draw: function () {
+        frb.context.save();
+        frb.context.translate(this.xTarget, this.yTarget);
 
-    frb.context.rotate(this.zRotation);
+        frb.context.rotate(this.zRotation);
 
-    frb.context.globalAlpha = this.alpha;
+        frb.context.globalAlpha = this.alpha;
 
-    if (!this.textureCoordinate) {
-        frb.context.drawImage(this.img, this.width / -2, this.height / -2);
+        if (!this.textureCoordinate) {
+            frb.context.drawImage(this.img, this.width / -2, this.height / -2);
+        }
+        else {
+            // this is a sprite sheet
+            var srcX = this.width * this.textureCoordinate.left;
+            var srcY = this.height * this.textureCoordinate.top;
+            var srcW = (this.width * this.textureCoordinate.right) - srcX;
+            var srcH = (this.height * this.textureCoordinate.bottom) - srcY;
+
+            frb.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
+        }
+
+        frb.context.restore();
+    },
+    addTextureCoordinate: function(left, right, top, bottom) {
+        this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
     }
-    else {
-        // this is a sprite sheet
-        var srcX = this.width * this.textureCoordinate.left;
-        var srcY = this.height * this.textureCoordinate.top;
-        var srcW = (this.width * this.textureCoordinate.right) - srcX;
-        var srcH = (this.height * this.textureCoordinate.bottom) - srcY;
-
-        frb.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
-    }
-
-    frb.context.restore();
-};
-frb.Sprite.prototype.update = function () {
-    this.position.updateControlValues(this);
-    this.position.update();
-    this.position.updatePositionResults(this);
-
-    this.xTarget = this.x;
-    this.yTarget = MathHelper.invert(this.y);
-
-    this.alpha = MathHelper.clamp(this.alpha, 0, 1);
-};
-frb.Sprite.prototype.addTextureCoordinate = function(left, right, top, bottom) {
-    this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
-};
+});
 frb.Emitter = function (){
     this.pool = new frb.ResourcePool();
     this.position = {x:0, y:0};
@@ -550,7 +501,7 @@ frb.start = function (options) {
             $(document).keydown(function (e) {
                 frb.InputManager.keyboard.pressed[e.which] = true;
 
-                if (frb.keys["Space"] === e.which) {
+                if (frb.keys["Space"] === e.which && options.disableSpaceBar) {
                     e.preventDefault();
                 }
             });
