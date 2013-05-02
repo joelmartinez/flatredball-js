@@ -322,7 +322,6 @@ frb.Line = frb.PositionedObject.extend({
 
         frb.context.beginPath();
         
-        console.log(this.end.toJson());
         frb.context.moveTo(this.start.xTarget, this.start.yTarget);
         frb.context.lineTo(this.end.xTarget, this.end.yTarget);
 
@@ -459,6 +458,10 @@ frb.Emitter.prototype.emitCircle = function(r) {
 frb.start = function (options) {
     frb.updateFunction = options.update;
 
+    if (!options.clearColor) {
+        options.clearColor = "#6495ED";
+    }
+
     function coreUpdate() {
         frb.TimeManager.update();
         frb.InputManager.update();
@@ -471,7 +474,7 @@ frb.start = function (options) {
     }
 
     function coreDraw() {
-        frb.context.fillStyle = "#6495ED";
+        frb.context.fillStyle = frb.clearColor;
         frb.context.fillRect(0, 0, frb.graphics.width, frb.graphics.height);
 
         frb.SpriteManager.draw();
