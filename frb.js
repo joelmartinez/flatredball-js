@@ -458,9 +458,9 @@ frb.Emitter.prototype.emitCircle = function(r) {
 frb.start = function (options) {
     frb.updateFunction = options.update;
 
-    if (!options.clearColor) {
-        options.clearColor = "#6495ED";
-    }
+    if (!options.clearColor) options.clearColor = "#6495ED";
+    frb.clearColor = options.clearColor;
+
 
     function coreUpdate() {
         frb.TimeManager.update();
