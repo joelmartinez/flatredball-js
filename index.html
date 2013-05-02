@@ -81,7 +81,7 @@ console.log(scriptName);
       success: function(result) { 
             var data = eval("(" + result + ")");
             $("#title").text(data.title);
-            $("#description").text(data.description);
+            $("#description").html(data.description);
         },
         error: function(jqXHR, textStatus, errorThrown) { 
             alert(textStatus);
