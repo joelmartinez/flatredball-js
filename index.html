@@ -40,6 +40,7 @@
 
     compileWorker.addEventListener('message', function(e) {
         // Compilation finished ... now update the UI
+        console.log("reloading");
         var result = e.data;
 
         if (result.failed) {
@@ -63,10 +64,10 @@ var getScript = function(scriptName) {
     var dataUrl = "api/"+ scriptName +".js";
     var scriptUrl = "api/"+ scriptName +"-source.js";
 
-console.log(scriptName);
     $.ajax({
       url: scriptUrl,
       success: function(result) { 
+            console.log("starting to run the script");
             eval(result);
             editor.setValue(result);
         },
@@ -96,26 +97,13 @@ if (location.hash && location.hash.length > 0) {
     scriptName = location.hash.substring(1, location.hash.length);
 }
 getScript(scriptName);
-/*
-    $.get("api/emitter.js")
-    .success(function(result) { 
-        console.log(result);
-    })
-    .error(function(jqXHR, textStatus, errorThrown) { 
-        console.log(textStatus);
-    });
-    
-    $(function() {
-        // initialize the first version of the app
-        var script  = editor.getValue();
-        eval(script);
-    });*/
 
-    editor.getSession().on('change', function() {
-        // send a message to the compilation thread
-        var script  = editor.getValue();
-        compileWorker.postMessage(script);
-    });
+
+editor.getSession().on('change', function() {
+    // send a message to the compilation thread
+    var script  = editor.getValue();
+    compileWorker.postMessage(script);
+});
 </script>
 
 </body>
