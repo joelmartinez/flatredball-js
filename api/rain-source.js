@@ -3,16 +3,25 @@ frb.start({
     init: function() {
         window.lines = new Array();
 
-        window.topbound = 400;
-        window.bottombound = -400;
+        options = {
+            numberOfDrops: 50,
+            rainVector: {x: -4, y: -23},
+            rainVectorRandomFactor: 1,
+            rainSpeed: 40,
+            rainSpeedRandomFactor: 10
+        };
 
-        for (var i = 0; i < 50; i++) {
-            var startx = Math.random() * window.topbound*2 - window.topbound;
-            var starty = Math.random() * window.topbound*2 - window.topbound;
-            var line = frb.SpriteManager.addLine(startx,starty,startx-4-(Math.random() * 1-1),starty-28);
+        for (var i = 0; i < options.numberOfDrops; i++) {
+            var startx = Math.random() * frb.viewBounds.left*2 - frb.viewBounds.left;
+            var starty = Math.random() * frb.viewBounds.top*2 - frb.viewBounds.top*2;
+            var line = frb.SpriteManager.addLine(
+                startx,
+                starty,
+                startx+options.rainVector.x-(Math.random() * options.rainVectorRandomFactor-options.rainVectorRandomFactor),
+                starty+options.rainVector.y);
             line.lineColor = "#ccc";
             line.lineWidth = 4;
-            line.vec = {x: line.end.x-line.start.x, y: line.end.y-line.start.y, speed: 40 + Math.random() * 10};  
+            line.vec = {x: line.end.x-line.start.x, y: line.end.y-line.start.y, speed: options.rainSpeed + Math.random() * options.rainSpeedRandomFactor};  
 
             window.lines.push(line);
         };               
@@ -21,8 +30,10 @@ frb.start({
         window.line = line;
     },
     update: function() {
-        var top = window.topbound;
-        var bottom = window.bottombound;
+        var top = frb.viewBounds.top;
+        var bottom = frb.viewBounds.bottom;
+        var left = frb.viewBounds.left;
+        var right = frb.viewBounds.right;
 
         for (var i = window.lines.length - 1; i >= 0; i--) {
             var line = window.lines[i]
@@ -45,9 +56,9 @@ frb.start({
                 line.start.y = top - line.vec.y;
                 line.end.y = top;
             }
-            if (line.end.x < bottom) {
-                line.start.x = top - line.vec.x;
-                line.end.x = top;
+            if (line.end.x < left) {
+                line.start.x = right - line.vec.x;
+                line.end.x = right;
             }
 
         };
