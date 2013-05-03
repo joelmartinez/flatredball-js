@@ -248,7 +248,7 @@ frb.SpriteManager = {
     camera: new frb.Camera(),
     images: {},
     sprites: new frb.AttachableList(),
-    add: function (name) {
+    add: function (name, loadedCallback) {
         var path = name;
 
         // handle the case where we want a static URL
@@ -260,13 +260,17 @@ frb.SpriteManager = {
 
         // now initialize the image
         var img;
+        var isDoneLoading = false;
         if (name in this.images) {
             img = this.images[name];
+            isDoneLoading = true;
         }
         else {
             img = new Image();
             img.src = path;
             img.loadEvents = new Array();
+            if (loadedCallback)
+                img.loadEvents.push(loadedCallback);
             img.onload = function () {
                 for (var i = 0; i < img.loadEvents.length; i++) {
                     img.loadEvents[i]();
@@ -276,8 +280,10 @@ frb.SpriteManager = {
         }
 
         // now create the sprite
-        var sprite = new frb.Sprite(name, img, 0, 0);
+        var sprite = new frb.Sprite(name, img, 0, 0, loadedCallback);
         this.sprites.push(sprite);
+
+        if (isDoneLoading) loadedCallback;
 
         return sprite;
     },
@@ -390,7 +396,7 @@ frb.Circle = frb.PositionedObject.extend({
 });
 
 frb.Sprite = frb.PositionedObject.extend({
-    init: function(name, img, x, y) {
+    init: function(name, img, x, y, loadedCallback) {
         this.name = name;
         this.img = img;
         this.width = img.width;
