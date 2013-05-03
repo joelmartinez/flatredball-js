@@ -230,6 +230,20 @@ frb.InputManager = {
     }
 };
 
+frb.updateViewBounds = function() {
+    // update the view bounds
+    var left = frb.SpriteManager.camera.x - (frb.graphics.width / 2);
+    var top = frb.SpriteManager.camera.y + (frb.graphics.height / 2);
+    var bottom = top - frb.graphics.height;
+    var right = left + frb.graphics.width;
+
+    if (!frb.viewBounds) frb.viewBounds = {top:0, right:0, bottom: 0, left: 0 };
+    frb.viewBounds.top = top;
+    frb.viewBounds.right = right;
+    frb.viewBounds.bottom = bottom;
+    frb.viewBounds.left = left;
+};
+
 frb.SpriteManager = {
     camera: new frb.Camera(),
     images: {},
@@ -280,6 +294,7 @@ frb.SpriteManager = {
         return line;
     },
     update: function () {
+        frb.updateViewBounds();
         for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites.get(i);
             sprite.update();
@@ -562,6 +577,8 @@ frb.start = function (options) {
     }
 
     (function () {
+        frb.updateViewBounds();
+
         // run the user's initialization code
         if (options.init) options.init();
 
