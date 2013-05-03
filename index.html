@@ -40,7 +40,6 @@
 
     compileWorker.addEventListener('message', function(e) {
         // Compilation finished ... now update the UI
-        console.log("reloading");
         var result = e.data;
 
         if (result.failed) {
@@ -67,7 +66,6 @@ var getScript = function(scriptName) {
     $.ajax({
       url: scriptUrl,
       success: function(result) { 
-            console.log("starting to run the script");
             eval(result);
             editor.setValue(result);
         },

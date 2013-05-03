@@ -2,7 +2,8 @@ frb.start({
     clearColor:"black",
     init: function() {
         window.lines = new Array();
-        frb.SpriteManager.addCircle(10).xVelocity=5;
+        window.tiles = new Array();
+
         options = {
             numberOfDrops: 50,
             rainVector: {x: -4, y: -23},
@@ -11,6 +12,7 @@ frb.start({
             rainSpeedRandomFactor: 10
         };
 
+        // init the raindrops
         for (var i = 0; i < options.numberOfDrops; i++) {
             var startx = Math.random() * frb.viewBounds.left*2 - frb.viewBounds.left;
             var starty = Math.random() * frb.viewBounds.top*2 - frb.viewBounds.top*2;
@@ -24,17 +26,9 @@ frb.start({
             line.vec = {x: line.end.x-line.start.x, y: line.end.y-line.start.y, speed: options.rainSpeed + Math.random() * options.rainSpeedRandomFactor};  
 
             window.lines.push(line);
-        };               
-
-
-        window.line = line;
+        }; 
     },
     update: function() {
-        var top = frb.viewBounds.top;
-        var bottom = frb.viewBounds.bottom;
-        var left = frb.viewBounds.left;
-        var right = frb.viewBounds.right;
-
         for (var i = window.lines.length - 1; i >= 0; i--) {
             var line = window.lines[i]
 
