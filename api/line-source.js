@@ -1,17 +1,17 @@
-frb.start({
-    init: function() {
-        frb.line1 = frb.SpriteManager.addLine(0,0, 20,20);
-
-        frb.line2 = frb.SpriteManager.addLine(10,10, 10, -50);
-        frb.line2.lineWidth = 10;
-        frb.line2.lineColor = "red";
+var game = frb.start({
+    init: function(engine) {
+        game.line1 = engine.SpriteManager.addLine(0,0, 20,20);
+        game.line2 = engine.SpriteManager.addLine(10,10, 10, -50);
+        
+        game.line2.lineWidth = 10;
+        game.line2.lineColor = "red";
 
         
     },
     update: function() {
 
-        frb.line1.end.x = frb.InputManager.mouse.worldX;
-        frb.line1.end.y = frb.InputManager.mouse.worldY;
+        game.line1.end.x = game.InputManager.mouse.worldX;
+        game.line1.end.y = game.InputManager.mouse.worldY;
         
     }
 });

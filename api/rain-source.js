@@ -1,6 +1,6 @@
-frb.start({
+var game = frb.start({
     clearColor:"black",
-    init: function() {
+    init: function(engine) {
         window.lines = new Array();
 
         options = {
@@ -13,9 +13,9 @@ frb.start({
 
         // init the raindrops
         for (var i = 0; i < options.numberOfDrops; i++) {
-            var startx = Math.random() * frb.viewBounds.left*2 - frb.viewBounds.left;
-            var starty = Math.random() * frb.viewBounds.top*2 - frb.viewBounds.top*2;
-            var line = frb.SpriteManager.addLine(
+            var startx = Math.random() * engine.viewBounds.left*2 - engine.viewBounds.left;
+            var starty = Math.random() * engine.viewBounds.top*2 - engine.viewBounds.top*2;
+            var line = engine.SpriteManager.addLine(
                 startx,
                 starty,
                 startx+options.rainVector.x-(Math.random() * options.rainVectorRandomFactor-options.rainVectorRandomFactor),
@@ -31,7 +31,7 @@ frb.start({
         for (var i = window.lines.length - 1; i >= 0; i--) {
             var line = window.lines[i]
 
-            if (!frb.InputManager.keyboard.keyDown("S")) {
+            if (!game.InputManager.keyboard.keyDown("S")) {
                 var vec = line.vec;
 
                 line.start.xVelocity = vec.x * vec.speed;
@@ -46,13 +46,13 @@ frb.start({
                 line.end.yVelocity = 0;
             }
 
-            if (line.start.y < frb.viewBounds.bottom) {
-                line.start.y = frb.viewBounds.top - line.vec.y;
-                line.end.y = frb.viewBounds.top;
+            if (line.start.y < game.viewBounds.bottom) {
+                line.start.y = game.viewBounds.top - line.vec.y;
+                line.end.y = game.viewBounds.top;
             }
-            if (line.end.x < frb.viewBounds.left) {
-                line.start.x = frb.viewBounds.right - line.vec.x;
-                line.end.x = frb.viewBounds.right;
+            if (line.end.x < game.viewBounds.left) {
+                line.start.x = game.viewBounds.right - line.vec.x;
+                line.end.x = game.viewBounds.right;
             }
 
         };

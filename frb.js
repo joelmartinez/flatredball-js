@@ -29,6 +29,8 @@ MathHelper = {
     Framework
 ***********************/
 
+var frb = (function(frb) {
+
 /* Simple JavaScript Inheritance. By John Resig http://ejohn.org/ MIT Licensed. */
 (function(){var initializing=false,fnTest=/xyz/.test(function(){xyz;})?/\b_super\b/:/.*/;this.Class=function(){};Class.extend=function(prop){var _super=this.prototype;initializing=true;var prototype=new this();initializing=false;for(var name in prop){prototype[name]=typeof prop[name]=="function"&&typeof _super[name]=="function"&&fnTest.test(prop[name])?(function(name,fn){return function(){var tmp=this._super;this._super=_super[name];var ret=fn.apply(this,arguments);this._super=tmp;return ret;};})(name,prop[name]):prop[name];}
 function Class(){if(!initializing&&this.init)
@@ -39,10 +41,7 @@ Class.prototype.toJson = function() {
     return JSON.stringify(this, null, 0);
 }
 
-var frb = {
-    pause: false,
-    keys: { "Backspace": 8, "Tab": 9, "Enter": 13, "Shift": 16, "Ctrl": 17, "Alt": 18, "PauseBreak": 19, "CapsLock": 20, "Esc": 27, "Space": 32, "PageUp": 33, "PageDown": 34, "End": 35, "Home": 36, "Left": 37, "Up": 38, "Right": 39, "Down": 40, "Insert": 45, "Delete": 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, "A": 65, "B": 66, "C": 67, "D": 68, "E": 69, "F": 70, "G": 71, "H": 72, "I": 73, "J": 74, "K": 75, "L": 76, "M": 77, "N": 78, "O": 79, "P": 80, "Q": 81, "R": 82, "S": 83, "T": 84, "U": 85, "V": 86, "W": 87, "X": 88, "Y": 89, "Z": 90, "Windows": 91, "RightClick": 93, "Num0": 96, "Num1": 97, "Num2": 98, "Num3": 99, "Num4": 100, "Num5": 101, "Num6": 102, "Num7": 103, "Num8": 104, "Num9": 105, "Num*": 106, "Num+": 107, "Num-": 109, "Num.": 110, "Num/": 111, "F1": 112, "F2": 113, "F3": 114, "F4": 115, "F5": 116, "F6": 117, "F7": 118, "F8": 119, "F9": 120, "F10": 121, "F11": 122, "F12": 123, "NumLock": 144, "ScrollLock": 145, "MyComputer": 182, "MyCalculator": 183, ";": 186, "=": 187, ",": 188, "-": 189, ".": 190, "/": 191, "`": 192, "[": 219, "\\": 220, "]": 221, "'": 222 }
-};
+frb.keys = { "Backspace": 8, "Tab": 9, "Enter": 13, "Shift": 16, "Ctrl": 17, "Alt": 18, "PauseBreak": 19, "CapsLock": 20, "Esc": 27, "Space": 32, "PageUp": 33, "PageDown": 34, "End": 35, "Home": 36, "Left": 37, "Up": 38, "Right": 39, "Down": 40, "Insert": 45, "Delete": 46, "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57, "A": 65, "B": 66, "C": 67, "D": 68, "E": 69, "F": 70, "G": 71, "H": 72, "I": 73, "J": 74, "K": 75, "L": 76, "M": 77, "N": 78, "O": 79, "P": 80, "Q": 81, "R": 82, "S": 83, "T": 84, "U": 85, "V": 86, "W": 87, "X": 88, "Y": 89, "Z": 90, "Windows": 91, "RightClick": 93, "Num0": 96, "Num1": 97, "Num2": 98, "Num3": 99, "Num4": 100, "Num5": 101, "Num6": 102, "Num7": 103, "Num8": 104, "Num9": 105, "Num*": 106, "Num+": 107, "Num-": 109, "Num.": 110, "Num/": 111, "F1": 112, "F2": 113, "F3": 114, "F4": 115, "F5": 116, "F6": 117, "F7": 118, "F8": 119, "F9": 120, "F10": 121, "F11": 122, "F12": 123, "NumLock": 144, "ScrollLock": 145, "MyComputer": 182, "MyCalculator": 183, ";": 186, "=": 187, ",": 188, "-": 189, ".": 190, "/": 191, "`": 192, "[": 219, "\\": 220, "]": 221, "'": 222 };
 
 frb.AttachableList = function() {
     this.list = new Array();
@@ -191,19 +190,23 @@ frb.PositionedObject = Class.extend({
     }
 });
 
-frb.Camera = function() {
+frb.Camera = function(engine) {
+    this.engine = engine;
     this.x = 0;
     this.y = 0;
 }
 frb.Camera.prototype.start = function () {
-    frb.context.save();
-    frb.context.translate((0 - this.x) + frb.graphics.width / 2, this.y + frb.graphics.height / 2);
+    this.engine.context.save();
+    this.engine.context.translate((0 - this.x) + this.engine.graphics.width / 2, this.y + this.engine.graphics.height / 2);
 };
 frb.Camera.prototype.end = function () {
-    frb.context.restore();
+    this.engine.context.restore();
 };
 
-frb.InputManager = {
+frb.InputManager = Class.extend({
+    init: function(engine) {
+        this.engine = engine;
+    },
     mouse: {
         x: 0,
         y: 0,
@@ -223,29 +226,18 @@ frb.InputManager = {
     },
     update: function () {
         // update the mouse's world coordinates
-        var left = frb.SpriteManager.camera.x - (frb.graphics.width / 2);
-        var top = MathHelper.invert(frb.SpriteManager.camera.y) - (frb.graphics.height / 2);
+        var left = this.engine.SpriteManager.camera.x - (this.engine.graphics.width / 2);
+        var top = MathHelper.invert(this.engine.SpriteManager.camera.y) - (this.engine.graphics.height / 2);
         this.mouse.worldX = left + this.mouse.x;
         this.mouse.worldY = MathHelper.invert(top + this.mouse.y);
     }
-};
+});
 
-frb.updateViewBounds = function() {
-    // update the view bounds
-    var left = frb.SpriteManager.camera.x - (frb.graphics.width / 2);
-    var top = frb.SpriteManager.camera.y + (frb.graphics.height / 2);
-    var bottom = top - frb.graphics.height;
-    var right = left + frb.graphics.width;
-
-    if (!frb.viewBounds) frb.viewBounds = {top:0, right:0, bottom: 0, left: 0 };
-    frb.viewBounds.top = top;
-    frb.viewBounds.right = right;
-    frb.viewBounds.bottom = bottom;
-    frb.viewBounds.left = left;
-};
-
-frb.SpriteManager = {
-    camera: new frb.Camera(),
+frb.SpriteManager = Class.extend({
+    init:function(engine) {
+        this.engine = engine;
+        this.camera = new frb.Camera(engine);
+    },
     images: {},
     sprites: new frb.AttachableList(),
     add: function (name, loadedCallback) {
@@ -280,7 +272,7 @@ frb.SpriteManager = {
         }
 
         // now create the sprite
-        var sprite = new frb.Sprite(name, img, 0, 0, loadedCallback);
+        var sprite = new frb.Sprite(this.engine, name, img, 0, 0, loadedCallback);
         this.sprites.push(sprite);
 
         if (isDoneLoading) loadedCallback;
@@ -288,19 +280,19 @@ frb.SpriteManager = {
         return sprite;
     },
     addCircle: function(radius) {
-        var circle = new frb.Circle(0, 0, radius);
+        var circle = new frb.Circle(this.engine, 0, 0, radius);
         this.sprites.push(circle);
 
         return circle;
     },
     addLine: function(startx, starty, endx, endy) {
-        var line = new frb.Line(startx, starty, endx, endy);
+        var line = new frb.Line(this.engine, startx, starty, endx, endy);
         this.sprites.push(line);
 
         return line;
     },
     update: function () {
-        frb.updateViewBounds();
+        this.engine.updateViewBounds();
         for (var i = 0; i < this.sprites.length; i++) {
             var sprite = this.sprites.get(i);
             sprite.update();
@@ -317,10 +309,32 @@ frb.SpriteManager = {
     reset: function() {
         this.sprites.removeAll();
     }
-};
+});
+
+frb.Engine = Class.extend({
+    init: function() {
+        this.InputManager = new frb.InputManager(this);
+        this.SpriteManager = new frb.SpriteManager(this);
+    },
+    pause: false,
+    updateViewBounds: function() {
+        // update the view bounds
+        var left = this.SpriteManager.camera.x - (this.graphics.width / 2);
+        var top = this.SpriteManager.camera.y + (this.graphics.height / 2);
+        var bottom = top - this.graphics.height;
+        var right = left + this.graphics.width;
+
+        if (!this.viewBounds) this.viewBounds = {top:0, right:0, bottom: 0, left: 0 };
+        this.viewBounds.top = top;
+        this.viewBounds.right = right;
+        this.viewBounds.bottom = bottom;
+        this.viewBounds.left = left;
+    }
+});
 
 frb.Line = frb.PositionedObject.extend({
-    init: function(startx, starty, endx, endy) {
+    init: function(engine, startx, starty, endx, endy) {
+        this.engine = engine;
         this.start = new frb.PositionedObject();
         this.start.x = startx;
         this.start.y = starty;
@@ -337,26 +351,27 @@ frb.Line = frb.PositionedObject.extend({
         this.end.update();
     },
     draw: function() {
-        frb.context.save();
+        engine.context.save();
 
-        frb.context.globalAlpha = this.alpha;
+        engine.context.globalAlpha = this.alpha;
 
-        frb.context.beginPath();
+        engine.context.beginPath();
         
-        frb.context.moveTo(this.start.xTarget, this.start.yTarget);
-        frb.context.lineTo(this.end.xTarget, this.end.yTarget);
+        engine.context.moveTo(this.start.xTarget, this.start.yTarget);
+        engine.context.lineTo(this.end.xTarget, this.end.yTarget);
 
-        frb.context.lineWidth = this.lineWidth;
-        frb.context.strokeStyle = this.lineColor;
+        engine.context.lineWidth = this.lineWidth;
+        engine.context.strokeStyle = this.lineColor;
 
-        frb.context.stroke();
+        engine.context.stroke();
 
-        frb.context.restore();
+        engine.context.restore();
     }
 });
 
 frb.Circle = frb.PositionedObject.extend({
-    init: function(x, y, radius) {
+    init: function(engine, x, y, radius) {
+        this.engine = engine;
         this.radius = radius;
 
         this.width = radius * 2;
@@ -374,29 +389,30 @@ frb.Circle = frb.PositionedObject.extend({
         this.borderWidth = 1;
     },
     draw: function () {
-        frb.context.save();
-        frb.context.translate(this.xTarget, this.yTarget);
+        engine.context.save();
+        engine.context.translate(this.xTarget, this.yTarget);
 
-        frb.context.rotate(this.zRotation);
+        engine.context.rotate(this.zRotation);
 
-        frb.context.globalAlpha = this.alpha;
+        engine.context.globalAlpha = this.alpha;
 
-        frb.context.beginPath();
-        frb.context.arc(0, 0, this.radius, 0 , MathHelper.twoPi, false);
+        engine.context.beginPath();
+        engine.context.arc(0, 0, this.radius, 0 , MathHelper.twoPi, false);
         
-        frb.context.fillStyle = this.color;
-        frb.context.fill();
-        frb.context.lineWidth = this.borderWidth;
-        frb.context.strokeStyle = this.borderColor;
-        frb.context.stroke();
+        engine.context.fillStyle = this.color;
+        engine.context.fill();
+        engine.context.lineWidth = this.borderWidth;
+        engine.context.strokeStyle = this.borderColor;
+        engine.context.stroke();
 
 
-        frb.context.restore();
+        engine.context.restore();
     }
 });
 
 frb.Sprite = frb.PositionedObject.extend({
-    init: function(name, img, x, y, loadedCallback) {
+    init: function(engine, name, img, x, y, loadedCallback) {
+        this.engine = engine;
         this.name = name;
         this.img = img;
         this.width = img.width;
@@ -417,15 +433,15 @@ frb.Sprite = frb.PositionedObject.extend({
         });
     },
     draw: function () {
-        frb.context.save();
-        frb.context.translate(this.xTarget, this.yTarget);
+        engine.context.save();
+        engine.context.translate(this.xTarget, this.yTarget);
 
-        frb.context.rotate(this.zRotation);
+        engine.context.rotate(this.zRotation);
 
-        frb.context.globalAlpha = this.alpha;
+        engine.context.globalAlpha = this.alpha;
 
         if (!this.textureCoordinate) {
-            frb.context.drawImage(this.img, this.width / -2, this.height / -2);
+            engine.context.drawImage(this.img, this.width / -2, this.height / -2);
         }
         else {
             // this is a sprite sheet
@@ -434,16 +450,17 @@ frb.Sprite = frb.PositionedObject.extend({
             var srcW = (this.width * this.textureCoordinate.right) - srcX;
             var srcH = (this.height * this.textureCoordinate.bottom) - srcY;
 
-            frb.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
+            engine.context.drawImage(this.img, 0, 0, srcW, srcH, srcW/-2, srcH/-2, srcW , srcH);
         }
 
-        frb.context.restore();
+        engine.context.restore();
     },
     addTextureCoordinate: function(left, right, top, bottom) {
         this.textureCoordinate = { left:left, right:right, top:top, bottom:bottom };
     }
 });
-frb.Emitter = function (){
+frb.Emitter = function (engine){
+    this.engine = engine;
     this.pool = new frb.ResourcePool();
     this.position = {x:0, y:0};
 };
@@ -462,12 +479,12 @@ frb.Emitter.prototype.emit = function(addFunc) {
 };
 frb.Emitter.prototype.emitSprite = function(texture) {
     return this.emit(function() {
-        return frb.SpriteManager.add(texture)
+        return this.engine.SpriteManager.add(texture)
     });
 };
 frb.Emitter.prototype.emitCircle = function(r) {
     var circle = this.emit(function() {
-        return frb.SpriteManager.addCircle(r);
+        return this.engine.SpriteManager.addCircle(r);
     });
     circle.radius = r;
     return circle;
@@ -477,28 +494,29 @@ frb.Emitter.prototype.emitCircle = function(r) {
     Game initialization
 ***********************/
 frb.start = function (options) {
-    frb.updateFunction = options.update;
+    engine = new frb.Engine();
+    engine.updateFunction = options.update;
 
     if (!options.clearColor) options.clearColor = "#6495ED";
-    frb.clearColor = options.clearColor;
+    engine.clearColor = options.clearColor;
 
 
     function coreUpdate() {
         frb.TimeManager.update();
-        frb.InputManager.update();
+        engine.InputManager.update();
 
-        if (!frb.pause) {
-            if (frb.updateFunction) frb.updateFunction();
-            frb.SpriteManager.update();
+        if (!engine.pause) {
+            if (engine.updateFunction) engine.updateFunction();
+            engine.SpriteManager.update();
 
         }
     }
 
     function coreDraw() {
-        frb.context.fillStyle = frb.clearColor;
-        frb.context.fillRect(0, 0, frb.graphics.width, frb.graphics.height);
+        engine.context.fillStyle = engine.clearColor;
+        engine.context.fillRect(0, 0, engine.graphics.width, engine.graphics.height);
 
-        frb.SpriteManager.draw();
+        engine.SpriteManager.draw();
 
         if (options.draw) options.draw();
     }
@@ -508,22 +526,22 @@ frb.start = function (options) {
     // create the canvas, if necessary
     if (options.canvas) {
         if (jQuery && options.canvas instanceof jQuery) {
-            frb.context = options.canvas.get(0).getContext("2d");
-            frb.graphics = { width: options.canvas.width(), height: options.canvas.height() };
+            engine.context = options.canvas.get(0).getContext("2d");
+            engine.graphics = { width: options.canvas.width(), height: options.canvas.height() };
         }
         else {
-            frb.context = options.canvas.getContext("2d");
-            frb.graphics = { width: options.canvas.width, height: options.canvas.height };
+            engine.context = options.canvas.getContext("2d");
+            engine.graphics = { width: options.canvas.width, height: options.canvas.height };
         }
     }
     else if (document.getElementsByTagName("canvas").length > 0) {
         var canvasElement = document.getElementsByTagName("canvas").item(0);
         options.canvas = canvasElement;
-        frb.context = canvasElement.getContext("2d");
-        frb.graphics = { width: canvasElement.width, height: canvasElement.height };
+        engine.context = canvasElement.getContext("2d");
+        engine.graphics = { width: canvasElement.width, height: canvasElement.height };
     }
     else {
-        frb.graphics = {
+        engine.graphics = {
             width: 480,
             height: 320
         };
@@ -536,57 +554,57 @@ frb.start = function (options) {
         body.appendChild(canvasElement);
 
         options.canvas = canvasElement;
-        frb.context = canvasElement.getContext("2d");
+        engine.context = canvasElement.getContext("2d");
     }
     
-    if (!frb.graphics.fps) frb.graphics.fps = 60;
+    if (!engine.graphics.fps) engine.graphics.fps = 60;
 
     // if the user is using jQuery, start tracking input
     if ($) {
         $(function () {
             // mouse events
             $(options.canvas).mouseenter(function() {
-                frb.InputManager.onCanvas = true;
+                engine.InputManager.onCanvas = true;
             });
             $(options.canvas).mouseleave(function() {
-                frb.InputManager.onCanvas = false;
+                engine.InputManager.onCanvas = false;
             });
             $(options.canvas).mousemove(function (e) {
                 var relativeXPosition = e.pageX - this.offsetLeft;
                 var relativeYPosition = e.pageY - this.offsetTop;
-                frb.InputManager.mouse.x = relativeXPosition;
-                frb.InputManager.mouse.y = relativeYPosition;
+                engine.InputManager.mouse.x = relativeXPosition;
+                engine.InputManager.mouse.y = relativeYPosition;
             });
             $(options.canvas).mousedown(function (e) {
-                if (e.which === 1) frb.InputManager.mouse.leftButton = true;
-                if (e.which === 3) frb.InputManager.mouse.rightButton = true;
-                if (e.which === 2) frb.InputManager.mouse.middleButton = true;
+                if (e.which === 1) engine.InputManager.mouse.leftButton = true;
+                if (e.which === 3) engine.InputManager.mouse.rightButton = true;
+                if (e.which === 2) engine.InputManager.mouse.middleButton = true;
             });
             $(options.canvas).mouseup(function (e) {
-                if (e.which === 1) frb.InputManager.mouse.leftButton = false;
-                if (e.which === 3) frb.InputManager.mouse.rightButton = false;
-                if (e.which === 2) frb.InputManager.mouse.middleButton = false;
+                if (e.which === 1) engine.InputManager.mouse.leftButton = false;
+                if (e.which === 3) engine.InputManager.mouse.rightButton = false;
+                if (e.which === 2) engine.InputManager.mouse.middleButton = false;
             });
 
             // keyboard events
             $(document).keydown(function (e) {
-                frb.InputManager.keyboard.pressed[e.which] = true;
+                engine.InputManager.keyboard.pressed[e.which] = true;
 
                 if (frb.keys["Space"] === e.which && options.disableSpaceBar) {
                     e.preventDefault();
                 }
             });
             $(document).keyup(function (e) {
-                frb.InputManager.keyboard.pressed[e.which] = false;
+                engine.InputManager.keyboard.pressed[e.which] = false;
             });
         });
     }
 
     (function () {
-        frb.updateViewBounds();
+        engine.updateViewBounds();
 
         // run the user's initialization code
-        if (options.init) options.init();
+        if (options.init) options.init(engine);
 
         // set up the game loop
         if (Worker) {
@@ -598,7 +616,7 @@ frb.start = function (options) {
                 coreDraw();
             }, false);
 
-            worker.postMessage(frb.graphics);
+            worker.postMessage(engine.graphics);
         }
         else {
             // no workers
@@ -607,8 +625,14 @@ frb.start = function (options) {
             setInterval(function () {
                 coreUpdate();
                 coreDraw();
-            }, 1000 / frb.graphics.fps);
+            }, 1000 / engine.graphics.fps);
 
         }
     })();
+
+    return engine;
 };
+
+return frb;
+
+})(frb || {});

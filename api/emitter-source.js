@@ -1,11 +1,12 @@
-frb.start({
+
+var game = frb.start({
     init: function() {
-        window.emitter = new frb.Emitter();
+        window.emitter = new frb.Emitter(game);
     },
     update: function() {
 
-        emitter.position.x = frb.InputManager.mouse.worldX;
-        emitter.position.y = frb.InputManager.mouse.worldY;
+        emitter.position.x = game.InputManager.mouse.worldX;
+        emitter.position.y = game.InputManager.mouse.worldY;
         
 
         // recycle particles if necessary
