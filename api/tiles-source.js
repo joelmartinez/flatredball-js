@@ -26,3 +26,5 @@ var game = frb.start({
         
     }
 });
+
+window.game = game;

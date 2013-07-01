@@ -49,10 +49,10 @@
 
         try {
             if (result.shouldReset) {
-                frb.SpriteManager.reset();
-                eval("(" + result.initFunction + ")")();
+                window.game.SpriteManager.reset();
+                eval("(" + result.initFunction + ")")(window.game);
             }
-            frb.updateFunction = eval("(" + result.updateFunction + ")");
+            window.game.updateFunction = eval("(" + result.updateFunction + ")");
         }
         catch (err) {
             failedEvent(err.message);
