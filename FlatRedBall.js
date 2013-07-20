@@ -1,5 +1,11 @@
 var flatRedBall = (function (frb) {
 
+	var verifyOptions = function(object, defaults) {
+		for(var p in defaults) {
+			if (!object.hasOwnProperty(p))
+				object[p] = defaults[p];
+		}
+	};
     frb.paused = false;
     frb.focused = false;
     frb.context = null;
@@ -16,13 +22,31 @@ var flatRedBall = (function (frb) {
         bottom: 0,
         left: 0
     };
-    frb.options = {
-        disableSpaceBarScroll: true,
-        disableRightClick: true
-    }
+	
+    frb.customActivity = function () {
+        // intended to be overridden with custom logic
+    };
 
-
-    frb.init = function (canvas) {
+    frb.init = function (options) {
+	console.log(options);
+		verifyOptions(options, 
+		{
+			clearColor:"#6495ED",
+			fps:60,
+			disableSpaceBarScroll:true,
+			disableRightClick:true
+		});
+		
+		console.log(options);
+		
+		// initialize values from user supplied options
+		frb.options = options;
+		var canvas = options.canvas;
+		frb.graphics.fps = options.fps;
+		frb.graphics.background = options.clearColor;
+		if (options.hasOwnProperty("update"))
+			frb.customActivity = options.update;
+		
         if (canvas === undefined || canvas === null) {
             throw "Invalid canvas provided.";
         }
@@ -32,7 +56,10 @@ var flatRedBall = (function (frb) {
             frb.graphics.height = frb.context.canvas.height;
 
             frb.initializeInput(canvas);
-
+			
+			if (options.hasOwnProperty("init"))
+				options.init();
+				
             frb.gameTimer = setInterval(frb.run, 1000 / frb.graphics.fps);
             console.log("Engine initialized.");
         }
@@ -82,10 +109,6 @@ var flatRedBall = (function (frb) {
         frb.context.fillStyle = frb.graphics.background;
         frb.context.fillRect(0, 0, frb.graphics.width, frb.graphics.height);
         frb.SpriteManager.draw();
-    };
-
-    frb.customActivity = function () {
-        // intended to be overridden with custom logic
     };
 
     frb.updateViewBounds = function () {
