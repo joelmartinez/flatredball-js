@@ -68,8 +68,8 @@ var flatRedBall = (function (frb) {
                 this.relativeVelocity.z += (this.relativeAcceleration.x * deltaTime);
 
 
-                this.xTarget = this.x;
-                this.yTarget = frb.MathHelper.invert(this.y);
+                this.xTarget = this.position.x;
+                this.yTarget = frb.MathHelper.invert(this.position.y);
                 this.alpha = frb.MathHelper.clamp(this.alpha, 0, 1);
 
                 // update children

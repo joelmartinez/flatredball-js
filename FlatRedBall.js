@@ -28,7 +28,6 @@ var flatRedBall = (function (frb) {
     };
 
     frb.init = function (options) {
-	console.log(options);
 		verifyOptions(options, 
 		{
 			clearColor:"#6495ED",
@@ -37,7 +36,6 @@ var flatRedBall = (function (frb) {
 			disableRightClick:true
 		});
 		
-		console.log(options);
 		
 		// initialize values from user supplied options
 		frb.options = options;

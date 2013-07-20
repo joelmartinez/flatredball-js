@@ -63,6 +63,7 @@ var flatRedBall = (function (frb) {
             for(var i = 0; i < this.sprites.length; i++) {
                 var sprite = this.sprites.get(i);
                 frb.context.save();
+				
                 frb.context.translate(sprite.xTarget, sprite.yTarget);
 
                 // TODO: handle more than Z rotation
